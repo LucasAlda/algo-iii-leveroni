@@ -158,17 +158,34 @@ initialize
 	Stack := OrderedCollection new.
 	! !
 
-!OOStack methodsFor: 'as yet unclassified' stamp: 'BB 5/10/2022 21:03:12'!
+!OOStack methodsFor: 'as yet unclassified' stamp: 'LA 5/12/2022 00:13:02'!
 isEmpty
+
 	^Stack isEmpty.! !
 
-!OOStack methodsFor: 'as yet unclassified' stamp: 'BB 5/10/2022 21:15:06'!
+!OOStack methodsFor: 'as yet unclassified' stamp: 'LA 5/12/2022 00:12:46'!
 pop
+
+	(self isEmpty ) ifTrue: [ self error: self class stackEmptyErrorDescription ].
+	
 	^Stack removeLast.! !
 
-!OOStack methodsFor: 'as yet unclassified' stamp: 'BB 5/10/2022 21:00:17'!
+!OOStack methodsFor: 'as yet unclassified' stamp: 'LA 5/12/2022 00:12:57'!
 push: aString 
+
 	^Stack addLast: aString.! !
+
+!OOStack methodsFor: 'as yet unclassified' stamp: 'LA 5/11/2022 23:56:04'!
+size
+
+	^Stack size.! !
+
+!OOStack methodsFor: 'as yet unclassified' stamp: 'LA 5/12/2022 00:12:54'!
+top
+	
+	(self isEmpty) ifTrue: [ self error: self class stackEmptyErrorDescription ].
+	
+	^Stack at: Stack size! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
