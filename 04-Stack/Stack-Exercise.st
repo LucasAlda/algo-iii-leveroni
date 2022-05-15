@@ -136,6 +136,70 @@ test10CanNotTopWhenThereAreNoObjectsInTheStack
 		
 ! !
 
+
+!OOStackTest methodsFor: 'test - extra' stamp: 'BB 5/14/2022 21:54:03'!
+test11CanCreateAStackWithALimitedCapacity
+	| stack |
+	
+	stack := OOStack withLimit: 3.
+	
+	self assert: stack isEmpty
+! !
+
+!OOStackTest methodsFor: 'test - extra' stamp: 'BB 5/14/2022 22:18:32'!
+test12AssertThatPushAddsElementsWhenLimitIsHigher
+	| stack |
+	
+	stack := OOStack withLimit: 3.
+	
+	stack push: 'something'.
+	self assert: stack size equals: 1.
+
+	stack push: 'another'.
+	self assert: stack size equals: 2.! !
+
+!OOStackTest methodsFor: 'test - extra' stamp: 'BB 5/14/2022 22:26:30'!
+test13AssertThatPushFailsWhenLimitIsReached
+	| stack |
+	
+	stack := OOStack withLimit: 1.
+	
+	self pushToTheLimit: stack. ! !
+
+!OOStackTest methodsFor: 'test - extra' stamp: 'BB 5/14/2022 22:26:05'!
+test14AssertThatLimitCanBeReachedAgain
+	| stack |
+	
+	stack := OOStack withLimit: 1.
+	
+	self pushToTheLimit: stack.
+	
+	stack pop.
+	
+	self pushToTheLimit: stack.
+	
+	
+	
+	! !
+
+
+!OOStackTest methodsFor: 'helpers' stamp: 'BB 5/14/2022 22:25:00'!
+pushToTheLimit: aStack
+
+	aStack push: 'something'.
+	self assert: aStack size equals: 1.
+	
+	self should: [aStack push: 'another'] raise: Error assertingErrorMessageBeing: OOStack stackFullErrorDescription.! !
+
+
+!OOStackTest methodsFor: 'assertions' stamp: 'BB 5/14/2022 22:06:02'!
+should: aBlockThatShouldFail raise: anExceptionType assertingErrorMessageBeing: anErrorMessage
+
+	[aBlockThatShouldFail value.
+	self fail]
+	on: anExceptionType 
+	do: [ :anError | self assert: anErrorMessage equals: anError messageText ]! !
+
 
 !classDefinition: #SentenceFinderByPrefixTest category: 'Stack-Exercise'!
 TestCase subclass: #SentenceFinderByPrefixTest
@@ -313,7 +377,7 @@ should: aBlockThatShouldFail raise: anExceptionType assertingErrorMessageBeing: 
 
 !classDefinition: #OOStack category: 'Stack-Exercise'!
 Object subclass: #OOStack
-	instanceVariableNames: 'elements state'
+	instanceVariableNames: 'elements state limit'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
@@ -325,23 +389,43 @@ assertThatStackIsNotEmpty
 	
 	! !
 
+!OOStack methodsFor: 'state management' stamp: 'BB 5/14/2022 21:42:23'!
+assertThatStackIsNotFull
+
+	state onFullStateRaise: self class stackFullErrorDescription.
+	
+	! !
+
 !OOStack methodsFor: 'state management' stamp: 'LA 5/12/2022 20:47:57'!
 revalidateState
 
 	state := State with: self.! !
 
 
-!OOStack methodsFor: 'basic operations' stamp: 'LA 5/12/2022 20:10:28'!
+!OOStack methodsFor: 'basic operations' stamp: 'BB 5/14/2022 21:59:58'!
 initialize
 	
 	elements := OrderedCollection new.
 	state := Empty  new.
+	limit := -1.
 	! !
+
+!OOStack methodsFor: 'basic operations' stamp: 'BB 5/14/2022 21:36:37'!
+initializeWithLimit: maximumNumberOfElements
+	
+	elements := OrderedCollection new.
+	state := Empty  new.
+	limit := maximumNumberOfElements ! !
 
 !OOStack methodsFor: 'basic operations' stamp: 'LA 5/12/2022 19:45:18'!
 isEmpty
 
 	^elements isEmpty.! !
+
+!OOStack methodsFor: 'basic operations' stamp: 'BB 5/14/2022 22:01:34'!
+isFull
+
+	^(self size >= limit) and: (limit positive).! !
 
 !OOStack methodsFor: 'basic operations' stamp: 'BB 5/14/2022 19:02:27'!
 pop
@@ -356,9 +440,10 @@ pop
 	
 	^removedElement.! !
 
-!OOStack methodsFor: 'basic operations' stamp: 'LA 5/12/2022 20:48:28'!
+!OOStack methodsFor: 'basic operations' stamp: 'BB 5/14/2022 21:41:44'!
 push: aString 
 
+	self assertThatStackIsNotFull.
 	elements addLast: aString.
 	self revalidateState.! !
 
@@ -383,6 +468,16 @@ OOStack class
 stackEmptyErrorDescription
 	
 	^ 'Stack is empty'! !
+
+!OOStack class methodsFor: 'error descriptions' stamp: 'BB 5/14/2022 21:42:57'!
+stackFullErrorDescription
+
+	^'Stack is Full!!'! !
+
+!OOStack class methodsFor: 'error descriptions' stamp: 'BB 5/14/2022 21:53:20'!
+withLimit: maximumNumberOfElements
+	
+		^self new initializeWithLimit: maximumNumberOfElements ! !
 
 
 !classDefinition: #Prefix category: 'Stack-Exercise'!
@@ -635,6 +730,11 @@ onEmptyStateRaise: anError
 
 	^self subclassResponsibility.! !
 
+!State methodsFor: 'basic operations' stamp: 'BB 5/14/2022 21:43:42'!
+onFullStateRaise: anError
+
+	^self subclassResponsibility.! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'State class' category: 'Stack-Exercise'!
@@ -668,6 +768,11 @@ onEmptyStateRaise: anError
 	
 	^self error: anError.! !
 
+!Empty methodsFor: 'basic operations' stamp: 'BB 5/14/2022 21:44:38'!
+onFullStateRaise: anError
+	
+	^'No error'.! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Empty class' category: 'Stack-Exercise'!
@@ -678,6 +783,35 @@ Empty class
 fitsTo: anOOStack
 
 	^anOOStack isEmpty.! !
+
+
+!classDefinition: #Full category: 'Stack-Exercise'!
+State subclass: #Full
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!Full methodsFor: 'basic operations' stamp: 'BB 5/14/2022 21:40:03'!
+onEmptyStateRaise: anError
+	
+	^'No error'.! !
+
+!Full methodsFor: 'basic operations' stamp: 'BB 5/14/2022 21:45:21'!
+onFullStateRaise: anError
+	
+	^self error: anError.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Full class' category: 'Stack-Exercise'!
+Full class
+	instanceVariableNames: ''!
+
+!Full class methodsFor: 'instance creation' stamp: 'BB 5/14/2022 21:40:49'!
+fitsTo: anOOStack
+
+	^anOOStack isFull.! !
 
 
 !classDefinition: #NotEmpty category: 'Stack-Exercise'!
@@ -692,13 +826,18 @@ onEmptyStateRaise: anError
 	
 	^'No error'.! !
 
+!NotEmpty methodsFor: 'basic operations' stamp: 'BB 5/14/2022 21:44:19'!
+onFullStateRaise: anError
+	
+	^'No error'.! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'NotEmpty class' category: 'Stack-Exercise'!
 NotEmpty class
 	instanceVariableNames: ''!
 
-!NotEmpty class methodsFor: 'instance creation' stamp: 'BB 5/14/2022 20:07:07'!
+!NotEmpty class methodsFor: 'instance creation' stamp: 'BB 5/14/2022 21:46:23'!
 fitsTo: anOOStack
 
-	^anOOStack isEmpty not.! !
+	^(anOOStack isEmpty not and: anOOStack isFull not)! !
