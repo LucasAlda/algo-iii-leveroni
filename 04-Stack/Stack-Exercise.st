@@ -139,10 +139,176 @@ test10CanNotTopWhenThereAreNoObjectsInTheStack
 
 !classDefinition: #SentenceFinderByPrefixTest category: 'Stack-Exercise'!
 TestCase subclass: #SentenceFinderByPrefixTest
-	instanceVariableNames: ''
+	instanceVariableNames: 'emptyStack notEmptyStack'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
+
+!SentenceFinderByPrefixTest methodsFor: 'setup' stamp: 'BB 5/14/2022 20:30:24'!
+setUp
+	
+	emptyStack := OOStack new.
+	
+	notEmptyStack := OOStack new.
+	notEmptyStack push: 'winter'.
+	notEmptyStack push: 'window'.
+	notEmptyStack push: 'sunny'.
+	notEmptyStack push: ''.
+	notEmptyStack push: 'Without'.
+	
+	! !
+
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'BB 5/14/2022 18:54:24'!
+test01CanCreateASentenceFinderByPrefixWithAStack
+	
+	| finder |
+	
+	finder := SentenceFinderByPrefix for: emptyStack.
+	
+	self assert: finder associatedStack equals: emptyStack.
+	
+! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'BB 5/14/2022 20:23:49'!
+test02AssertThatFindFailsWhenEmptyPrefixIsGiven
+	
+	| finder |
+	
+	finder := SentenceFinderByPrefix for: notEmptyStack.
+	
+	self should: [finder find:''] raise: Error assertingErrorMessageBeing: Prefix canNotBeEmpty
+	
+	
+	
+	
+	
+! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'BB 5/14/2022 20:26:56'!
+test03AssertThatFindFailsWhenPrefixIsNotAString
+
+	| finder |
+	
+	finder := SentenceFinderByPrefix for: notEmptyStack.
+	
+	self should: [finder find:-4] raise: Error assertingErrorMessageBeing: Prefix hasToBeAString.
+	
+	
+	
+	
+	
+! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'BB 5/14/2022 20:27:08'!
+test04AssertThatFindFailsWhenPrefixHasSpaces
+
+	| finder |
+	
+	finder := SentenceFinderByPrefix for: notEmptyStack.
+	
+	self should: [finder find:'leo messi'] raise: Error assertingErrorMessageBeing: Prefix canNotIncludeSpaces
+	
+	
+	
+	
+	
+	
+! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'BB 5/14/2022 18:56:02'!
+test05AssertThatFindReturnsAnEmptyCollectionWhenNoMatches
+
+	| finder matchedSentences emptyCollection |
+	
+	finder := SentenceFinderByPrefix for: notEmptyStack.
+	
+	matchedSentences := finder find: 'Boquita'.
+	
+	emptyCollection := OrderedCollection new.
+	
+	self assert: matchedSentences equals: emptyCollection
+	
+	
+	
+	
+	
+	
+! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'BB 5/14/2022 18:56:25'!
+test06AssertThatFindDoesNotModifyTheStack
+
+	| finder |
+	
+	finder := SentenceFinderByPrefix for: notEmptyStack.
+	
+	finder find: 'Boquita'.
+	
+	self assert: finder associatedStack size equals: 5.
+	self assert: finder associatedStack top equals: 'Without'.
+	
+	
+	
+	
+	
+	
+	
+! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'BB 5/14/2022 18:15:05'!
+test07AssertThatFindReturnsACollectionWithOneElementWhenOnlyMatchIsFound
+
+	| finder matchedSentences collectionWithSunny |
+	
+	finder := SentenceFinderByPrefix for: notEmptyStack.
+	
+	collectionWithSunny := OrderedCollection new.
+	collectionWithSunny add: 'sunny'.
+	
+	matchedSentences := finder find: 'sunny'.
+	
+	self assert: matchedSentences equals: collectionWithSunny 
+	
+	
+	
+	
+	
+	
+! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'BB 5/14/2022 18:30:05'!
+test08AssertThatFindReturnsACollectionCaseSensitive
+
+	| finder matchedSentences expectedCollection |
+	
+	finder := SentenceFinderByPrefix for: notEmptyStack.
+	
+	expectedCollection := OrderedCollection new.
+	expectedCollection add: 'winter'.
+	expectedCollection add: 'window'.
+	
+	matchedSentences := finder find: 'wi'.
+	
+	self assert: matchedSentences equals: expectedCollection 
+	
+	
+	
+	
+	
+	
+! !
+
+
+!SentenceFinderByPrefixTest methodsFor: 'assertions' stamp: 'BB 5/14/2022 18:49:51'!
+should: aBlockThatShouldFail raise: anExceptionType assertingErrorMessageBeing: anErrorMessage
+
+	[aBlockThatShouldFail value.
+	self fail]
+	on: anExceptionType 
+	do: [ :anError | self assert: anErrorMessage equals: anError messageText ]
+	
+	 ! !
 
 
 !classDefinition: #OOStack category: 'Stack-Exercise'!
@@ -177,12 +343,11 @@ isEmpty
 
 	^elements isEmpty.! !
 
-!OOStack methodsFor: 'basic operations' stamp: 'LA 5/12/2022 20:54:30'!
+!OOStack methodsFor: 'basic operations' stamp: 'BB 5/14/2022 19:02:27'!
 pop
 
 	| removedElement |
 	
-	"(self isEmpty ) ifTrue: [ self error: self class stackEmptyErrorDescription ]."
 	self assertThatStackIsNotEmpty.
 	
 	removedElement := elements removeLast.
@@ -202,10 +367,9 @@ size
 
 	^elements size.! !
 
-!OOStack methodsFor: 'basic operations' stamp: 'LA 5/12/2022 20:54:13'!
+!OOStack methodsFor: 'basic operations' stamp: 'BB 5/14/2022 19:03:15'!
 top
-	
-	"(self isEmpty) ifTrue: [ self error: self class stackEmptyErrorDescription ]."
+
 	self assertThatStackIsNotEmpty.
 	^elements last.! !
 
@@ -221,12 +385,242 @@ stackEmptyErrorDescription
 	^ 'Stack is empty'! !
 
 
-!classDefinition: #SentenceFinderByPrefix category: 'Stack-Exercise'!
-Object subclass: #SentenceFinderByPrefix
+!classDefinition: #Prefix category: 'Stack-Exercise'!
+Object subclass: #Prefix
+	instanceVariableNames: 'value'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!Prefix methodsFor: 'initialization' stamp: 'BB 5/14/2022 19:43:07'!
+initializeWith: aPrefix
+
+	value := aPrefix.! !
+
+
+!Prefix methodsFor: 'basic operations' stamp: 'BB 5/14/2022 19:19:04'!
+validate
+
+	self subclassResponsibility.! !
+
+!Prefix methodsFor: 'basic operations' stamp: 'BB 5/14/2022 19:41:48'!
+value
+
+	^value! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Prefix class' category: 'Stack-Exercise'!
+Prefix class
+	instanceVariableNames: ''!
+
+!Prefix class methodsFor: 'instance creation' stamp: 'BB 5/14/2022 19:49:34'!
+creationWith: aPrefix
+
+	self subclassResponsibility.! !
+
+!Prefix class methodsFor: 'instance creation' stamp: 'BB 5/14/2022 20:07:06'!
+fitsTo: aPrefix
+
+	self subclassResponsibility.! !
+
+!Prefix class methodsFor: 'instance creation' stamp: 'BB 5/14/2022 20:21:21'!
+with: aPrefix
+	
+	| subclass |
+	subclass  :=  Prefix subclasses detect: [:aSubclass | aSubclass fitsTo: aPrefix ]
+		ifNone: [^ValidPrefix creationWith: aPrefix ].
+		
+		^subclass creationWith: aPrefix.
+	
+	! !
+
+
+!Prefix class methodsFor: 'error messages' stamp: 'BB 5/14/2022 19:21:34'!
+canNotBeEmpty
+	^'prefix can not be empty!!'! !
+
+!Prefix class methodsFor: 'error messages' stamp: 'BB 5/14/2022 19:22:09'!
+canNotIncludeSpaces
+	^'prefix can not include spaces!!'! !
+
+!Prefix class methodsFor: 'error messages' stamp: 'BB 5/14/2022 19:22:23'!
+hasToBeAString
+	^'prefix has to be a string!!'! !
+
+
+!classDefinition: #EmptyPrefix category: 'Stack-Exercise'!
+Prefix subclass: #EmptyPrefix
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
+
+!EmptyPrefix methodsFor: 'basic operations' stamp: 'BB 5/14/2022 20:26:16'!
+validate
+	self error: Prefix canNotBeEmpty! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'EmptyPrefix class' category: 'Stack-Exercise'!
+EmptyPrefix class
+	instanceVariableNames: ''!
+
+!EmptyPrefix class methodsFor: 'instance creation' stamp: 'BB 5/14/2022 20:56:05'!
+creationWith: aPrefix
+
+	^self new initializeWith: aPrefix! !
+
+!EmptyPrefix class methodsFor: 'instance creation' stamp: 'BB 5/14/2022 20:09:23'!
+fitsTo: aPrefix
+
+	^aPrefix = ''.! !
+
+
+!classDefinition: #NonStringPrefix category: 'Stack-Exercise'!
+Prefix subclass: #NonStringPrefix
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!NonStringPrefix methodsFor: 'basic operations' stamp: 'BB 5/14/2022 20:26:25'!
+validate
+	self error: Prefix hasToBeAString! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'NonStringPrefix class' category: 'Stack-Exercise'!
+NonStringPrefix class
+	instanceVariableNames: ''!
+
+!NonStringPrefix class methodsFor: 'instance creation' stamp: 'BB 5/14/2022 20:56:50'!
+creationWith: aPrefix
+
+	^self new initializeWith: aPrefix! !
+
+!NonStringPrefix class methodsFor: 'instance creation' stamp: 'BB 5/14/2022 20:19:08'!
+fitsTo: aPrefix
+
+	^(aPrefix isKindOf: String) not.! !
+
+
+!classDefinition: #SpacedPrefix category: 'Stack-Exercise'!
+Prefix subclass: #SpacedPrefix
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!SpacedPrefix methodsFor: 'basic operations' stamp: 'BB 5/14/2022 20:26:32'!
+validate
+	self error: Prefix canNotIncludeSpaces! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'SpacedPrefix class' category: 'Stack-Exercise'!
+SpacedPrefix class
+	instanceVariableNames: ''!
+
+!SpacedPrefix class methodsFor: 'instance creation' stamp: 'BB 5/14/2022 20:56:57'!
+creationWith: aPrefix
+
+	^self new initializeWith: aPrefix! !
+
+!SpacedPrefix class methodsFor: 'instance creation' stamp: 'BB 5/14/2022 20:13:47'!
+fitsTo: aPrefix
+
+	^('* *') match: aPrefix ! !
+
+
+!classDefinition: #ValidPrefix category: 'Stack-Exercise'!
+Prefix subclass: #ValidPrefix
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!ValidPrefix methodsFor: 'basic operations' stamp: 'BB 5/14/2022 19:33:38'!
+validate 
+	
+	^self.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'ValidPrefix class' category: 'Stack-Exercise'!
+ValidPrefix class
+	instanceVariableNames: ''!
+
+!ValidPrefix class methodsFor: 'instance creation' stamp: 'BB 5/14/2022 19:49:35'!
+creationWith: aPrefix
+
+	^self new initializeWith: aPrefix.! !
+
+!ValidPrefix class methodsFor: 'instance creation' stamp: 'BB 5/14/2022 20:16:49'!
+fitsTo: aPrefix
+	"returns false so it acts as a default when any other Prefix subclass fits"
+
+	^false! !
+
+
+!classDefinition: #SentenceFinderByPrefix category: 'Stack-Exercise'!
+Object subclass: #SentenceFinderByPrefix
+	instanceVariableNames: 'stack'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!SentenceFinderByPrefix methodsFor: 'initialization' stamp: 'BB 5/14/2022 16:12:43'!
+initializeWith: aStack
+
+	stack := aStack.! !
+
+
+!SentenceFinderByPrefix methodsFor: 'private' stamp: 'BB 5/14/2022 20:53:22'!
+ifThePopOf: aStack MatchesWith: aPrefix addItTo: aCollection
+
+	| sentence |
+	sentence := aStack pop.
+	
+	 (sentence beginsWith: aPrefix value) ifTrue: [
+		aCollection add: sentence
+	]
+
+
+! !
+
+
+!SentenceFinderByPrefix methodsFor: 'basic operations' stamp: 'BB 5/14/2022 16:16:33'!
+associatedStack
+
+	^stack.! !
+
+!SentenceFinderByPrefix methodsFor: 'basic operations' stamp: 'BB 5/14/2022 20:53:22'!
+find: prefixToEvaluate
+
+	| matchedSentences cloneOfStack prefix |
+	
+	prefix := Prefix with: prefixToEvaluate.
+	
+	prefix validate.
+ 
+	matchedSentences := OrderedCollection new.
+	
+	cloneOfStack := stack veryDeepCopy .
+	cloneOfStack size timesRepeat: [self ifThePopOf: cloneOfStack MatchesWith: prefix addItTo: matchedSentences].
+	
+	^matchedSentences reversed.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'SentenceFinderByPrefix class' category: 'Stack-Exercise'!
+SentenceFinderByPrefix class
+	instanceVariableNames: ''!
+
+!SentenceFinderByPrefix class methodsFor: 'instance creation' stamp: 'BB 5/14/2022 16:33:56'!
+for: aStack
+
+	^self new initializeWith: aStack.! !
 
 
 !classDefinition: #State category: 'Stack-Exercise'!
@@ -236,7 +630,7 @@ Object subclass: #State
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!State methodsFor: 'as yet unclassified' stamp: 'LA 5/12/2022 20:18:09'!
+!State methodsFor: 'basic operations' stamp: 'LA 5/12/2022 20:18:09'!
 onEmptyStateRaise: anError
 
 	^self subclassResponsibility.! !
@@ -247,20 +641,17 @@ onEmptyStateRaise: anError
 State class
 	instanceVariableNames: ''!
 
-!State class methodsFor: 'as yet unclassified' stamp: 'LA 5/12/2022 20:39:38'!
-isValidWith: anOOStack
+!State class methodsFor: 'instance creation' stamp: 'BB 5/14/2022 20:07:07'!
+fitsTo: anOOStack
 
 	^self subclassResponsibility .! !
 
-!State class methodsFor: 'as yet unclassified' stamp: 'LA 5/12/2022 20:37:26'!
+!State class methodsFor: 'instance creation' stamp: 'BB 5/14/2022 20:07:07'!
 with: anOOStack
-
-	"size = 0 ifTrue: [^Empty new]
-	ifFalse: [^NotEmpty new]."
 	
 	| subclass |
 	
-	subclass := State subclasses detect: [:aSubclass | aSubclass isValidWith: anOOStack ].
+	subclass := State subclasses detect: [:aSubclass | aSubclass fitsTo: anOOStack ].
 	
 	^subclass new.! !
 
@@ -272,7 +663,7 @@ State subclass: #Empty
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!Empty methodsFor: 'as yet unclassified' stamp: 'LA 5/12/2022 20:18:09'!
+!Empty methodsFor: 'basic operations' stamp: 'LA 5/12/2022 20:18:09'!
 onEmptyStateRaise: anError
 	
 	^self error: anError.! !
@@ -283,8 +674,8 @@ onEmptyStateRaise: anError
 Empty class
 	instanceVariableNames: ''!
 
-!Empty class methodsFor: 'as yet unclassified' stamp: 'LA 5/12/2022 20:40:16'!
-isValidWith: anOOStack
+!Empty class methodsFor: 'instance creation' stamp: 'BB 5/14/2022 20:07:07'!
+fitsTo: anOOStack
 
 	^anOOStack isEmpty.! !
 
@@ -296,7 +687,7 @@ State subclass: #NotEmpty
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!NotEmpty methodsFor: 'as yet unclassified' stamp: 'LA 5/12/2022 21:09:13'!
+!NotEmpty methodsFor: 'basic operations' stamp: 'LA 5/12/2022 21:09:13'!
 onEmptyStateRaise: anError
 	
 	^'No error'.! !
@@ -307,7 +698,7 @@ onEmptyStateRaise: anError
 NotEmpty class
 	instanceVariableNames: ''!
 
-!NotEmpty class methodsFor: 'as yet unclassified' stamp: 'LA 5/12/2022 20:46:29'!
-isValidWith: anOOStack
+!NotEmpty class methodsFor: 'instance creation' stamp: 'BB 5/14/2022 20:07:07'!
+fitsTo: anOOStack
 
 	^anOOStack isEmpty not.! !
