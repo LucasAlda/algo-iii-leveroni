@@ -1,153 +1,167 @@
 !classDefinition: #MarsRoverTest category: 'MarsRover'!
 TestCase subclass: #MarsRoverTest
-	instanceVariableNames: 'marsRover'
+	instanceVariableNames: 'marsRoverAtOriginPointingNorth marsRoverNotAtOriginAtPointingSouth'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'MarsRover'!
 
-!MarsRoverTest methodsFor: 'setUp' stamp: 'LA 5/30/2022 21:37:15'!
+!MarsRoverTest methodsFor: 'setUp' stamp: 'LA 6/2/2022 15:51:51'!
 setUp
 	
-	marsRover := MarsRover new.! !
+	marsRoverAtOriginPointingNorth := MarsRover at: 0@0 pointing: DirectionNorth new.
+	
+	marsRoverNotAtOriginAtPointingSouth := MarsRover at: 0@1 pointing: DirectionSouth new.
+	! !
 
 
-!MarsRoverTest methodsFor: 'assertions' stamp: 'LA 5/30/2022 21:44:00'!
-assertMarsRoverPointsTo: aDirection
+!MarsRoverTest methodsFor: 'assertions' stamp: 'LA 6/2/2022 15:38:24'!
+assertMarsRover: aMarsRover PointsTo: aDirection
 
-	self assert: marsRover direction equals: aDirection! !
+	self assert: aMarsRover direction equals: aDirection! !
 
-!MarsRoverTest methodsFor: 'assertions' stamp: 'LA 5/30/2022 21:41:29'!
-assertMarsRoverPositionIs: aPosition
+!MarsRoverTest methodsFor: 'assertions' stamp: 'LA 6/2/2022 15:38:19'!
+assertMarsRover: aMarsRover PositionIs: aPosition
 
-	self assert: marsRover position equals: aPosition ! !
-
-
-!MarsRoverTest methodsFor: 'private' stamp: 'LA 5/30/2022 21:39:01'!
-moveMarsRoverBackwards
-
-	^ marsRover followInstructions: 'b'! !
-
-!MarsRoverTest methodsFor: 'private' stamp: 'LA 5/30/2022 21:38:40'!
-moveMarsRoverFoward
-
-	^ marsRover followInstructions: 'f'! !
-
-!MarsRoverTest methodsFor: 'private' stamp: 'LA 5/30/2022 21:39:53'!
-rotateMarsRoverLeft
-
-	^ marsRover followInstructions: 'l'! !
-
-!MarsRoverTest methodsFor: 'private' stamp: 'LA 5/30/2022 21:39:34'!
-rotateMarsRoverRight
-
-	^ marsRover followInstructions: 'r'! !
+	self assert: aMarsRover position equals: aPosition ! !
 
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'LA 5/30/2022 21:41:51'!
+!MarsRoverTest methodsFor: 'private' stamp: 'LA 6/2/2022 15:34:11'!
+moveMarsRoverBackwards: aMarsRover
+
+	^ aMarsRover followInstructions: 'b'! !
+
+!MarsRoverTest methodsFor: 'private' stamp: 'LA 6/2/2022 15:45:06'!
+moveMarsRoverFoward: aMarsRover
+
+	^ aMarsRover followInstructions: 'f'! !
+
+!MarsRoverTest methodsFor: 'private' stamp: 'LA 6/2/2022 15:45:14'!
+rotateMarsRoverLeft: aMarsRover
+
+	^ aMarsRover followInstructions: 'l'! !
+
+!MarsRoverTest methodsFor: 'private' stamp: 'LA 6/2/2022 15:45:11'!
+rotateMarsRoverRight: aMarsRover
+
+	^ aMarsRover followInstructions: 'r'! !
+
+
+!MarsRoverTest methodsFor: 'tests' stamp: 'LA 6/2/2022 15:38:14'!
 test01AMarsRoverStartsAtOriginCoordinatesPointingNorth
 	
-	self assertMarsRoverPositionIs: 0@0.
-	self assert: marsRover direction equals: #DirectionNorth.! !
+	self assertMarsRover: marsRoverAtOriginPointingNorth PositionIs: 0@0.
+	self assert: marsRoverAtOriginPointingNorth direction equals: #DirectionNorth.! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'LA 5/30/2022 21:42:01'!
-test02AMarsRoverDoesNothingWhenItReceivesEmptyInstructions
+!MarsRoverTest methodsFor: 'tests' stamp: 'LA 6/2/2022 15:53:00'!
+test02AMarsRoverStartsAtAnyPositionPointingAnyDirection
+	
+	self assertMarsRover: marsRoverNotAtOriginAtPointingSouth PositionIs: 0@1.
+	self assertMarsRover: marsRoverNotAtOriginAtPointingSouth PointsTo: #DirectionSouth.! !
 
-	marsRover followInstructions: ''.
-	
-	self assertMarsRoverPositionIs: 0@0! !
+!MarsRoverTest methodsFor: 'tests' stamp: 'LA 6/2/2022 15:40:31'!
+test03AMarsRoverDoesNothingWhenItReceivesEmptyInstructions
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'LA 5/30/2022 21:42:06'!
-test03AMarsRoverCanMoveFowardWhenInstructedToDoSo
+	marsRoverAtOriginPointingNorth followInstructions: ''.
+	
+	self assertMarsRover: marsRoverAtOriginPointingNorth PositionIs: 0@0.
+	self assertMarsRover: marsRoverAtOriginPointingNorth PointsTo: #DirectionNorth.! !
 
-	self moveMarsRoverFoward.
-	
-	self assertMarsRoverPositionIs: 0@1! !
+!MarsRoverTest methodsFor: 'tests' stamp: 'LA 6/2/2022 15:52:33'!
+test04AMarsRoverCanMoveFowardWhenInstructed
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'LA 5/30/2022 21:42:10'!
-test04AMarsRoverCanMoveBackwardsWhenInstructedToDoSo
+	self moveMarsRoverFoward: marsRoverAtOriginPointingNorth.	
+	self assertMarsRover: marsRoverAtOriginPointingNorth PositionIs: 0@1.
+	
+	self moveMarsRoverFoward: marsRoverNotAtOriginAtPointingSouth.	
+	self assertMarsRover: marsRoverNotAtOriginAtPointingSouth PositionIs: 0@0.! !
 
-	self moveMarsRoverBackwards.
-	
-	self assertMarsRoverPositionIs: 0@-1! !
+!MarsRoverTest methodsFor: 'tests' stamp: 'LA 6/2/2022 15:53:28'!
+test05AMarsRoverCanMoveBackwardsWhenInstructed
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'LA 5/30/2022 21:42:25'!
-test05AMarsRoverCanMoveFowardAndBackwardsMultipleTimes
+	self moveMarsRoverBackwards: marsRoverAtOriginPointingNorth.
+	self assertMarsRover: marsRoverAtOriginPointingNorth PositionIs: 0@-1.
 	
-	self moveMarsRoverFoward.
-	self assertMarsRoverPositionIs: 0@1.
+	self moveMarsRoverBackwards: marsRoverNotAtOriginAtPointingSouth .
+	self assertMarsRover: marsRoverNotAtOriginAtPointingSouth PositionIs: 0@2.! !
+
+!MarsRoverTest methodsFor: 'tests' stamp: 'LA 6/2/2022 15:46:37'!
+test06AMarsRoverCanMoveFowardAndBackwardsMultipleTimes
 	
-	self moveMarsRoverFoward.
-	self assertMarsRoverPositionIs: 0@2.
+	self moveMarsRoverFoward: marsRoverAtOriginPointingNorth.
+	self assertMarsRover: marsRoverAtOriginPointingNorth PositionIs: 0@1.
 	
-	self moveMarsRoverBackwards.
-	self assertMarsRoverPositionIs: 0@1.
+	self moveMarsRoverFoward: marsRoverAtOriginPointingNorth.
+	self assertMarsRover: marsRoverAtOriginPointingNorth PositionIs: 0@2.
 	
-	self moveMarsRoverBackwards.
-	self assertMarsRoverPositionIs: 0@0.
+	self moveMarsRoverBackwards: marsRoverAtOriginPointingNorth.
+	self assertMarsRover: marsRoverAtOriginPointingNorth PositionIs: 0@1.
+	
+	self moveMarsRoverBackwards: marsRoverAtOriginPointingNorth.
+	self assertMarsRover: marsRoverAtOriginPointingNorth PositionIs: 0@0.
 	
 	! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'LA 5/30/2022 21:44:21'!
-test06AMarsRoverCanRotateRightAndMoveInThatDirectionWhenInstructedToDoSo
+!MarsRoverTest methodsFor: 'tests' stamp: 'LA 6/2/2022 15:50:33'!
+test07AMarsRoverCanRotateRightAndMoveInThatDirectionWhenInstructed
 	
-	self rotateMarsRoverRight.
-	self assertMarsRoverPointsTo: #DirectionEast.
+	self rotateMarsRoverRight: marsRoverAtOriginPointingNorth.
+	self assertMarsRover: marsRoverAtOriginPointingNorth PointsTo: #DirectionEast.
 	
-	self moveMarsRoverFoward.
-	self assertMarsRoverPositionIs: 1@0.
+	self moveMarsRoverFoward: marsRoverAtOriginPointingNorth.
+	self assertMarsRover: marsRoverAtOriginPointingNorth PositionIs: 1@0.
 	
-	self moveMarsRoverBackwards.
-	self assertMarsRoverPositionIs: 0@0.! !
+	self moveMarsRoverBackwards: marsRoverAtOriginPointingNorth.
+	self assertMarsRover: marsRoverAtOriginPointingNorth PositionIs: 0@0.! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'LA 5/30/2022 21:44:39'!
-test07AMarsRoverCanRotateLeftAndMoveInThatDirectionWhenInstructedToDoSo
+!MarsRoverTest methodsFor: 'tests' stamp: 'LA 6/2/2022 15:50:37'!
+test08AMarsRoverCanRotateLeftAndMoveInThatDirectionWhenInstructed
 
-	self rotateMarsRoverLeft.
-	self assertMarsRoverPointsTo: #DirectionWest.
+	self rotateMarsRoverLeft: marsRoverAtOriginPointingNorth.
+	self assertMarsRover: marsRoverAtOriginPointingNorth PointsTo: #DirectionWest.
 	
-	self moveMarsRoverFoward.
-	self assertMarsRoverPositionIs: -1@0.
+	self moveMarsRoverFoward: marsRoverAtOriginPointingNorth.
+	self assertMarsRover: marsRoverAtOriginPointingNorth PositionIs: -1@0.
 	
-	self moveMarsRoverBackwards.
-	self assertMarsRoverPositionIs: 0@0.! !
+	self moveMarsRoverBackwards: marsRoverAtOriginPointingNorth.
+	self assertMarsRover: marsRoverAtOriginPointingNorth PositionIs: 0@0.! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'LA 5/30/2022 21:44:59'!
-test08AMarsRoverCanRotateLeftAndRightMultipleTimes
+!MarsRoverTest methodsFor: 'tests' stamp: 'LA 6/2/2022 15:47:57'!
+test09AMarsRoverCanRotateLeftAndRightMultipleTimes
 	
-	self rotateMarsRoverLeft.
-	self assertMarsRoverPointsTo: #DirectionWest.
+	self rotateMarsRoverLeft: marsRoverAtOriginPointingNorth.
+	self assertMarsRover: marsRoverAtOriginPointingNorth PointsTo: #DirectionWest.
 	
-	self rotateMarsRoverLeft.
-	self assertMarsRoverPointsTo: #DirectionSouth.
+	self rotateMarsRoverLeft: marsRoverAtOriginPointingNorth.
+	self assertMarsRover: marsRoverAtOriginPointingNorth PointsTo: #DirectionSouth.
 	
-	self rotateMarsRoverRight.
-	self assertMarsRoverPointsTo: #DirectionWest.
+	self rotateMarsRoverRight: marsRoverAtOriginPointingNorth.
+	self assertMarsRover: marsRoverAtOriginPointingNorth PointsTo: #DirectionWest.
 	
-	self rotateMarsRoverRight.
-	self assertMarsRoverPointsTo: #DirectionNorth.! !
+	self rotateMarsRoverRight: marsRoverAtOriginPointingNorth.
+	self assertMarsRover: marsRoverAtOriginPointingNorth PointsTo: #DirectionNorth.! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'LA 5/30/2022 21:43:07'!
-test09AMarsRoverCanReceiveMultipleInstructionsAtTheSameTime
+!MarsRoverTest methodsFor: 'tests' stamp: 'LA 6/2/2022 15:48:06'!
+test10AMarsRoverCanReceiveMultipleInstructionsAtTheSameTime
 	
-	marsRover followInstructions: 'fflb'.
+	marsRoverAtOriginPointingNorth followInstructions: 'fflb'.
 	
-	self assertMarsRoverPositionIs: 1@2! !
+	self assertMarsRover: marsRoverAtOriginPointingNorth PositionIs: 1@2! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'LA 5/30/2022 21:45:32'!
-test10AMarsRoverShouldRaiseAnErrorOnAInvalidInstruction
+!MarsRoverTest methodsFor: 'tests' stamp: 'LA 6/2/2022 15:49:23'!
+test11AMarsRoverShouldRaiseAnErrorOnAInvalidInstruction
 	
-	self should: [marsRover followInstructions: 'x'.] 
+	self should: [marsRoverAtOriginPointingNorth followInstructions: 'x'.] 
 		raise: Error 
 		withMessageText: MarsRover invalidInstructionDescription.! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'LA 5/30/2022 21:45:47'!
-test11AMarsRoverShouldCompleteAllInstructionsBeforeAnInvalidOne
+!MarsRoverTest methodsFor: 'tests' stamp: 'LA 6/2/2022 15:49:26'!
+test12AMarsRoverShouldCompleteAllInstructionsBeforeAnInvalidOne
 	
-	self should:[marsRover followInstructions: 'frbxb'.] 
+	self should:[marsRoverAtOriginPointingNorth followInstructions: 'frbxb'.] 
 		raise: Error 
 		withMessageText: MarsRover invalidInstructionDescription.
 	
-	self assertMarsRoverPositionIs: -1@1! !
+	self assertMarsRover: marsRoverAtOriginPointingNorth PositionIs: -1@1! !
 
 
 !classDefinition: #Direction category: 'MarsRover'!
@@ -297,11 +311,11 @@ Object subclass: #MarsRover
 	poolDictionaries: ''
 	category: 'MarsRover'!
 
-!MarsRover methodsFor: 'initialization' stamp: 'LA 5/30/2022 21:15:44'!
-initialize
+!MarsRover methodsFor: 'initialization' stamp: 'LA 6/2/2022 15:22:12'!
+initializeAt: aPosition pointing: aDirection
 
-	position := 0@0.
-	direction := DirectionNorth new.! !
+	position := aPosition.
+	direction := aDirection.! !
 
 
 !MarsRover methodsFor: 'private - instructions' stamp: 'LA 5/30/2022 21:28:05'!
@@ -382,6 +396,11 @@ position
 !classDefinition: 'MarsRover class' category: 'MarsRover'!
 MarsRover class
 	instanceVariableNames: ''!
+
+!MarsRover class methodsFor: 'error messages' stamp: 'LA 6/2/2022 15:21:33'!
+at: aPosition pointing: aDirection
+
+	^self new initializeAt: aPosition pointing: aDirection ! !
 
 !MarsRover class methodsFor: 'error messages' stamp: 'BB 5/28/2022 18:42:32'!
 invalidInstructionDescription
