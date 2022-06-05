@@ -145,7 +145,8 @@ assertBalanceOf: anAccount is: anAmount
 	
 	self assert: anAccount balance equals: anAmount ! !
 
-!ReceptiveAccountTest methodsFor: 'assertions' stamp: 'LA 6/5/2022 17:55:03'!
+
+!ReceptiveAccountTest methodsFor: 'setup' stamp: 'LA 6/5/2022 17:55:03'!
 setUp
 	
 	account := ReceptiveAccount new.	
@@ -372,11 +373,6 @@ Object subclass: #Transference
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Transference methodsFor: 'initialization' stamp: 'LA 6/5/2022 17:26:36'!
-depositLeg
-	
-	^depositLeg.! !
-
 !Transference methodsFor: 'initialization' stamp: 'LA 6/5/2022 17:57:14'!
 initializeFrom: aSenderAccount to: aReceiverAccount amount: anAmountToTransfer 
 
@@ -388,12 +384,18 @@ initializeFrom: aSenderAccount to: aReceiverAccount amount: anAmountToTransfer
 	depositLeg counterpartWith: withdrawLeg.
 	withdrawLeg counterpartWith: depositLeg.	! !
 
-!Transference methodsFor: 'initialization' stamp: 'LA 6/5/2022 17:02:28'!
+
+!Transference methodsFor: 'accessing' stamp: 'LA 6/5/2022 17:26:36'!
+depositLeg
+	
+	^depositLeg.! !
+
+!Transference methodsFor: 'accessing' stamp: 'LA 6/5/2022 17:02:28'!
 value
 	
 	^value.! !
 
-!Transference methodsFor: 'initialization' stamp: 'LA 6/5/2022 17:26:45'!
+!Transference methodsFor: 'accessing' stamp: 'LA 6/5/2022 17:26:45'!
 withdrawLeg
 	
 	^withdrawLeg.! !
