@@ -152,7 +152,7 @@ test03WithdrawDecreasesBalanceOnTransactionValue
 
 ! !
 
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'BB 6/7/2022 17:28:38'!
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/7/2022 19:10:02'!
 test04WithdrawValueMustBePositive 
 
 	| withdrawValue extractedAmount |
@@ -160,8 +160,6 @@ test04WithdrawValueMustBePositive
 	withdrawValue := 50 * peso.
 	
 	extractedAmount := self withdrawOnAccount: withdrawValue.
-	
-	"self assert: withdrawValue equals: (Withdraw register: withdrawValue on: account) value."
 	
 	self assert: withdrawValue equals: extractedAmount value
 ! !
@@ -201,27 +199,29 @@ test07AccountKnowsItsTransactions
 	self assert: (account transactions includes: deposit).
 ! !
 
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:40:02'!
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/7/2022 19:16:49'!
 test08NeitherDepositsNorWithdrawsCanHaveZeroAmount
 
 	self should: [self depositOnAccount: 0 * peso]
 		raise: Error
-		withMessageText: 'Transactions amount can not be zero!!'.
+		withMessageText: 'Transactions amount must be positive!!'.
 
 	self should: [self withdrawOnAccount: 0 * peso]
 		raise: Error
-		withMessageText: 'Transactions amount can not be zero!!'.! !
+		withMessageText: 'Transactions amount must be positive!!'.
+! !
 
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:39:56'!
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/7/2022 19:17:26'!
 test09NeitherDepositsNorWithdrawsCanHaveNegativeAmount
 
 	self should: [self depositOnAccount: -10 * peso]
 		raise: Error
-		withMessageText: 'Transactions amount can not be for negative!!'.
+		withMessageText: 'Transactions amount must be positive!!'.
 
 	self should: [self withdrawOnAccount: -10 * peso]
 		raise: Error
-		withMessageText: 'Transactions amount can not be for negative!!'.! !
+		withMessageText: 'Transactions amount must be positive!!'.
+! !
 
 
 !ReceptiveAccountTest methodsFor: 'private' stamp: 'LA 6/7/2022 15:29:46'!
@@ -304,20 +304,20 @@ test13BothTransferenceLegsKnowTheirCounterpart
 	self assertCounterpartOf: depositLeg is: withdrawLeg.
 ! !
 
-!TransferenceTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:38:59'!
+!TransferenceTest methodsFor: 'tests' stamp: 'LA 6/7/2022 19:16:42'!
 test14TransferencesCannotHaveZeroAmount
 
 	self should: [self transfer: 0 * peso]
 		raise: Error
-		withMessageText: 'Transactions amount can not be zero!!'.
+		withMessageText: 'Transactions amount must be positive!!'.
 			! !
 
-!TransferenceTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:38:44'!
+!TransferenceTest methodsFor: 'tests' stamp: 'LA 6/7/2022 19:16:33'!
 test15TransferencesCannotHaveNegativeAmount
 
 	self should: [self transfer: -10 * peso]
 		raise: Error
-		withMessageText: 'Transactions amount can not be negative!!'.
+		withMessageText: 'Transactions amount must be positive!!'.
 			! !
 
 
@@ -354,26 +354,18 @@ transactionValue
 
 	self subclassResponsibility ! !
 
-!AccountTransaction methodsFor: 'accessing' stamp: 'LA 6/6/2022 20:54:08'!
+!AccountTransaction methodsFor: 'accessing' stamp: 'LA 6/7/2022 19:10:32'!
 value 
 
-	self subclassResponsibility ! !
+	^value! !
 
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'AccountTransaction class' category: 'ServiciosFinancieros-Ejercicio'!
-AccountTransaction class
-	instanceVariableNames: ''!
+!AccountTransaction methodsFor: 'initialization' stamp: 'LA 6/7/2022 19:16:14'!
+initializeFor: aValue
 
-!AccountTransaction class methodsFor: 'instance creation' stamp: 'NR 10/17/2019 03:22:00'!
-register: aValue on: account
+	(aValue <= 0) ifTrue: [self error: 'Transactions amount must be positive!!'].
 
-	| transaction |
-	
-	transaction := self for: aValue.
-	account register: transaction.
-		
-	^ transaction! !
+	value := aValue ! !
 
 
 !classDefinition: #Deposit category: 'ServiciosFinancieros-Ejercicio'!
@@ -383,21 +375,10 @@ AccountTransaction subclass: #Deposit
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Deposit methodsFor: 'initialization' stamp: 'HernanWilkinson 7/13/2011 18:45'!
-initializeFor: aValue
-
-	value := aValue ! !
-
-
 !Deposit methodsFor: 'accessing' stamp: 'LA 6/6/2022 20:54:51'!
 transactionValue
 
 	^ self value! !
-
-!Deposit methodsFor: 'accessing' stamp: 'LA 6/6/2022 20:54:26'!
-value
-
-	^ value! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -410,6 +391,16 @@ for: aValue
 
 	^ self new initializeFor: aValue ! !
 
+!Deposit class methodsFor: 'instance creation' stamp: 'LA 6/7/2022 19:19:14'!
+register: aValue on: account
+
+	| transaction |
+	
+	transaction := self for: aValue.
+	account register: transaction.
+		
+	^ transaction! !
+
 
 !classDefinition: #DepositTransference category: 'ServiciosFinancieros-Ejercicio'!
 AccountTransaction subclass: #DepositTransference
@@ -418,10 +409,12 @@ AccountTransaction subclass: #DepositTransference
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!DepositTransference methodsFor: 'initialization' stamp: 'LA 6/6/2022 20:37:46'!
-initializeAsLegOf: aTransference
+!DepositTransference methodsFor: 'initialization' stamp: 'LA 6/7/2022 19:11:50'!
+initializeFor: aValue AsLegOf: aTransference 
 
-	transference := aTransference. ! !
+	transference := aTransference. 
+	
+	self initializeFor: aValue.! !
 
 
 !DepositTransference methodsFor: 'accessing' stamp: 'LA 6/6/2022 20:46:45'!
@@ -434,28 +427,18 @@ transactionValue
 
 	^ self value! !
 
-!DepositTransference methodsFor: 'accessing' stamp: 'LA 6/6/2022 20:40:28'!
-value
-
-	^transference value.! !
-
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'DepositTransference class' category: 'ServiciosFinancieros-Ejercicio'!
 DepositTransference class
 	instanceVariableNames: ''!
 
-!DepositTransference class methodsFor: 'as yet unclassified' stamp: 'LA 6/5/2022 16:44:46'!
-for: aValue
-	
-	^self new initializeFor: aValue.! !
-
-!DepositTransference class methodsFor: 'as yet unclassified' stamp: 'LA 6/6/2022 20:44:33'!
-registerAsLegOf: aTransference on: anAccount 
+!DepositTransference class methodsFor: 'instance creation' stamp: 'LA 6/7/2022 19:13:19'!
+register: aValue asLegOf: aTransference on: anAccount 
 
 	| depositTransference |
 	
-	depositTransference := self new initializeAsLegOf: aTransference.
+	depositTransference := self new initializeFor: aValue AsLegOf: aTransference.
 	anAccount register: depositTransference.
 		
 	^ depositTransference
@@ -469,21 +452,10 @@ AccountTransaction subclass: #Withdraw
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Withdraw methodsFor: 'initialization' stamp: 'HernanWilkinson 7/13/2011 18:46'!
-initializeFor: aValue
-
-	value := aValue ! !
-
-
 !Withdraw methodsFor: 'accessing' stamp: 'LA 6/6/2022 20:55:17'!
 transactionValue
 
 	^self value negated! !
-
-!Withdraw methodsFor: 'accessing' stamp: 'LA 6/6/2022 20:55:22'!
-value
-
-	^ value! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -496,6 +468,16 @@ for: aValue
 
 	^ self new initializeFor: aValue ! !
 
+!Withdraw class methodsFor: 'instance creation' stamp: 'LA 6/7/2022 19:19:20'!
+register: aValue on: account
+
+	| transaction |
+	
+	transaction := self for: aValue.
+	account register: transaction.
+		
+	^ transaction! !
+
 
 !classDefinition: #WithdrawTransference category: 'ServiciosFinancieros-Ejercicio'!
 AccountTransaction subclass: #WithdrawTransference
@@ -504,10 +486,12 @@ AccountTransaction subclass: #WithdrawTransference
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!WithdrawTransference methodsFor: 'initialization' stamp: 'LA 6/6/2022 20:39:00'!
-initializeAsLegOf: aTransference
+!WithdrawTransference methodsFor: 'initialization' stamp: 'LA 6/7/2022 19:12:28'!
+initializeFor: aValue AsLegOf: aTransference
 
-	transference := aTransference. ! !
+	transference := aTransference. 
+	
+	self initializeFor: aValue.! !
 
 
 !WithdrawTransference methodsFor: 'accessing' stamp: 'LA 6/6/2022 20:47:25'!
@@ -520,31 +504,22 @@ transactionValue
 
 	^self value negated! !
 
-!WithdrawTransference methodsFor: 'accessing' stamp: 'LA 6/6/2022 20:42:05'!
-value
-
-	^transference value.! !
-
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'WithdrawTransference class' category: 'ServiciosFinancieros-Ejercicio'!
 WithdrawTransference class
 	instanceVariableNames: ''!
 
-!WithdrawTransference class methodsFor: 'as yet unclassified' stamp: 'LA 6/5/2022 16:45:12'!
-for: aValue
-	
-	^self new initializeFor: aValue.! !
+!WithdrawTransference class methodsFor: 'instance creation' stamp: 'LA 6/7/2022 19:13:52'!
+register: aValue asLegOf: aTransference on: anAccount 
 
-!WithdrawTransference class methodsFor: 'as yet unclassified' stamp: 'LA 6/6/2022 20:44:43'!
-registerAsLegOf: aTransference on: anAccount 
-
-	| withdrawTransference |
+	| depositTransference |
 	
-	withdrawTransference := self new initializeAsLegOf: aTransference.
-	anAccount register: withdrawTransference.
+	depositTransference := self new initializeFor: aValue AsLegOf: aTransference.
+	anAccount register: depositTransference.
 		
-	^ withdrawTransference! !
+	^ depositTransference
+	! !
 
 
 !classDefinition: #Portfolio category: 'ServiciosFinancieros-Ejercicio'!
@@ -625,12 +600,12 @@ Object subclass: #Transference
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Transference methodsFor: 'initialization' stamp: 'LA 6/6/2022 20:53:01'!
+!Transference methodsFor: 'initialization' stamp: 'LA 6/7/2022 19:14:29'!
 initializeFrom: aSenderAccount to: aReceiverAccount amount: anAmountToTransfer 
 
 	value := anAmountToTransfer.
-	depositLeg := DepositTransference registerAsLegOf: self on: aReceiverAccount .
-	withdrawLeg := WithdrawTransference registerAsLegOf: self on: aSenderAccount .! !
+	depositLeg := DepositTransference register: anAmountToTransfer asLegOf: self on: aReceiverAccount .
+	withdrawLeg := WithdrawTransference register: anAmountToTransfer asLegOf: self on: aSenderAccount .! !
 
 
 !Transference methodsFor: 'accessing' stamp: 'LA 6/5/2022 17:02:28'!
