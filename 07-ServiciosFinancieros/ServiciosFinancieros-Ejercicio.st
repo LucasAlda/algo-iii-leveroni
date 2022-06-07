@@ -1,36 +1,154 @@
-!classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Ejercicio'!
-TestCase subclass: #ReceptiveAccountTest
-	instanceVariableNames: 'account senderAccount receiverAccount'
+!classDefinition: #PortfolioTest category: 'ServiciosFinancieros-Ejercicio'!
+TestCase subclass: #PortfolioTest
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/5/2022 17:44:57'!
+!PortfolioTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:42:05'!
+test16EmptyPortfolioDoNotHasEntitiesAndBalanceZero
+	
+	| portfolio |
+	
+	portfolio := Portfolio new.
+	
+	self assert: 0 * peso equals: portfolio balance.
+	self assert: 0 equals: portfolio finantialEntities size.
+	! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:42:00'!
+test17PortfolioCanAddAnAccountAndHisBalanceEqualsAccountBalance
+	
+	| portfolio anAccount |
+	
+	portfolio := Portfolio new.
+	
+	anAccount := ReceptiveAccount new.
+	
+	self deposit: 100 * peso on: anAccount.
+	
+	portfolio add: anAccount.
+	
+	self assert: 1 equals: portfolio finantialEntities size.
+	self assert: anAccount balance equals: portfolio balance.
+	
+	! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:41:55'!
+test18PortfolioCanHaveMultipleAccountsAndSumBalances
+	
+	| portfolio anAccount anotherAccount |
+	
+	portfolio := Portfolio new.
+	
+	anAccount := ReceptiveAccount new.
+	anotherAccount := ReceptiveAccount new.
+	
+	self deposit: 100 * peso on: anAccount.
+	self deposit: 200 * peso on: anotherAccount.
+	
+	portfolio add: anAccount.
+	portfolio add: anotherAccount. 
+	
+	self assert: 2 equals: portfolio finantialEntities size.
+	self assert: 300 * peso equals: portfolio balance.
+	! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:40:29'!
+test19PortfolioKnowsIfAnyAccountRegisteredATransaction
+	
+	| portfolio anAccount deposit |
+	
+	portfolio := Portfolio new.
+	anAccount := ReceptiveAccount new.
+
+	portfolio add: anAccount.
+	deposit := self deposit: 100 * peso on: anAccount.
+		
+	self assert: (portfolio hasRegistered: deposit).
+	! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:40:24'!
+test20PortfolioCanGetAllAccountsTransactions
+	
+	| portfolio anAccount anotherAccount |
+	
+	portfolio := Portfolio new.
+	anAccount := ReceptiveAccount new.
+	anotherAccount := ReceptiveAccount new.
+
+	portfolio add: anAccount.
+	portfolio add: anotherAccount.	
+	
+	self deposit: 100 * peso on: anAccount.
+	self deposit: 200 * peso on: anotherAccount.		
+	
+	self assert: 3 equals: portfolio transactions size.
+	! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:36:51'!
+testXXPortfolioCanHaveMultiplePortfoliosAndAccounts
+	
+	| portfolio anotherPortfolio anAccount anotherAccount |
+	
+	portfolio := Portfolio new.
+	anotherPortfolio := Portfolio new.	
+	
+	anAccount := ReceptiveAccount new.
+	anotherAccount := ReceptiveAccount new.
+	
+	self deposit: 100 * peso on: anAccount.
+	self deposit: 200 * peso on: anotherAccount.
+
+	portfolio add: anAccount.
+	anotherPortfolio add: anotherAccount. 
+	
+	portfolio add: anotherPortfolio.
+	
+	self assert: 2 equals: portfolio finantialEntities size.
+	self assert: 300 * peso equals: portfolio balance.
+	! !
+
+
+!PortfolioTest methodsFor: 'private' stamp: 'LA 6/6/2022 21:27:25'!
+deposit: anAmount on: anAccount
+	
+	^Deposit register: anAmount on: anAccount ! !
+
+
+!classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Ejercicio'!
+TestCase subclass: #ReceptiveAccountTest
+	instanceVariableNames: 'account'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:27:59'!
 test01ReceptiveAccountHaveZeroAsBalanceWhenCreated 
 
 	
-	self assertBalanceOf: account is: 0 * peso
+	self assertBalanceOfAccountIs: 0 * peso
 ! !
 
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/5/2022 17:45:25'!
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:31:45'!
 test02DepositIncreasesBalanceOnTransactionValue 
 
-	self deposit: 100 * peso on: account.
+	self depositOnAccount: 100 * peso.
 		
-	self assertBalanceOf: account is: 100 * peso. 
+	self assertBalanceOfAccountIs: 100 * peso. 
 ! !
 
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/5/2022 17:52:21'!
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:30:57'!
 test03WithdrawDecreasesBalanceOnTransactionValue 
 
-	self deposit: 100 * peso on: account.
-	self withdraw: 50 * peso on: account.
+	self depositOnAccount: 100 * peso.
+	self withdrawOnAccount: 50 * peso.
 		
-	self assertBalanceOf: account is: 50 * peso
+	self assertBalanceOfAccountIs: 50 * peso
 
 ! !
 
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/5/2022 17:46:58'!
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/6/2022 20:09:16'!
 test04WithdrawValueMustBePositive 
 
 	| withdrawValue |
@@ -40,13 +158,13 @@ test04WithdrawValueMustBePositive
 	self assert: withdrawValue equals: (Withdraw register: withdrawValue on: account) value
 ! !
 
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/5/2022 17:43:16'!
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:31:13'!
 test05ReceptiveAccountKnowsRegisteredTransactions 
 
 	| deposit withdraw |
 	
-	deposit := self deposit: 100 * peso on: account.
-	withdraw := self withdraw: 50 * peso on: account.
+	deposit := self depositOnAccount: 100 * peso.
+	withdraw := self withdrawOnAccount: 50 * peso.
 		
 	self assert: (account hasRegistered: deposit).
 	self assert: (account hasRegistered: withdraw).
@@ -64,94 +182,155 @@ test06ReceptiveAccountDoNotKnowNotRegisteredTransactions
 	self deny: (account hasRegistered: withdraw).
 ! !
 
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/5/2022 17:41:13'!
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:31:55'!
 test07AccountKnowsItsTransactions 
 
 	| deposit |
 	
 	
-	deposit := self deposit: 50 * peso on: account.
+	deposit := self depositOnAccount: 50 * peso.
 		
 	self assert: 1 equals: account transactions size.
 	self assert: (account transactions includes: deposit).
 ! !
 
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/5/2022 17:55:03'!
-test08CanCreateATransferenceBetweenTwoAccounts
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:40:02'!
+test08NeitherDepositsNorWithdrawsCanHaveZeroAmount
+
+	self should: [self depositOnAccount: 0 * peso]
+		raise: Error
+		withMessageText: 'Transactions amount can not be zero!!'.
+
+	self should: [self withdrawOnAccount: 0 * peso]
+		raise: Error
+		withMessageText: 'Transactions amount can not be zero!!'.! !
+
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:39:56'!
+test09NeitherDepositsNorWithdrawsCanHaveNegativeAmount
+
+	self should: [self depositOnAccount: -10 * peso]
+		raise: Error
+		withMessageText: 'Transactions amount can not be for negative!!'.
+
+	self should: [self withdrawOnAccount: -10 * peso]
+		raise: Error
+		withMessageText: 'Transactions amount can not be for negative!!'.! !
+
+
+!ReceptiveAccountTest methodsFor: 'private' stamp: 'LA 6/7/2022 15:29:46'!
+depositOnAccount: anAmount
+	
+	^Deposit register: anAmount on: account.! !
+
+!ReceptiveAccountTest methodsFor: 'private' stamp: 'LA 6/7/2022 15:30:23'!
+withdrawOnAccount: anAmount
+	
+	^Withdraw register: anAmount on: account.! !
+
+
+!ReceptiveAccountTest methodsFor: 'assertions' stamp: 'LA 6/7/2022 15:27:45'!
+assertBalanceOfAccountIs: anAmount
+	
+	self assert: account balance equals: anAmount ! !
+
+
+!ReceptiveAccountTest methodsFor: 'setup' stamp: 'LA 6/7/2022 15:31:36'!
+setUp
+	
+	account := ReceptiveAccount new.	
+! !
+
+
+!classDefinition: #TransferenceTest category: 'ServiciosFinancieros-Ejercicio'!
+TestCase subclass: #TransferenceTest
+	instanceVariableNames: 'senderAccount receiverAccount'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!TransferenceTest methodsFor: 'private' stamp: 'LA 6/7/2022 15:15:51'!
+transfer: anAmount
+
+	^Transference from: senderAccount to: receiverAccount amount: anAmount.! !
+
+
+!TransferenceTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:35:50'!
+test10CanCreateATransferenceBetweenTwoAccounts
 
 	| transference |
 	
-	self deposit: 100 * peso on: senderAccount.
+	transference := self transfer: 75 * peso.
 	
-	transference := Transference from: senderAccount to: receiverAccount amount: 75 * peso.
-	
-	self assert: 75 * peso equals: transference value.	
-! !
+	self assert: 75 * peso equals: transference value.! !
 
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/5/2022 17:55:03'!
-test09TransferenceDecreaseAndIncreaseBalanceOnTransferenceParts
-
-	self deposit: 100 * peso on: senderAccount.
+!TransferenceTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:36:31'!
+test11TransferenceDecreaseAndIncreaseBalanceOnTransferenceParts
 	
-	Transference from: senderAccount to: receiverAccount amount: 75 * peso.
+	self transfer: 75 * peso.
 		
 	self assertBalanceOf: senderAccount is: 25 * peso.
-	self assertBalanceOf: receiverAccount is: 75 * peso.
-! !
+	self assertBalanceOf: receiverAccount is: 75 * peso.! !
 
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/5/2022 17:55:03'!
-test10BothPartsRegisteredTheirTransferenceLeg
+!TransferenceTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:36:23'!
+test12BothPartsRegisteredTheirTransferenceLeg
 
 	| transference |
 	
-	self deposit: 100 * peso on: senderAccount .
-	
-	transference := Transference from: senderAccount to: receiverAccount amount: 75 * peso.
+	transference := self transfer: 75 * peso.
 		
 	self assert: (senderAccount hasRegistered: transference withdrawLeg).
 	self assert: (receiverAccount hasRegistered: transference depositLeg).! !
 
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/5/2022 17:55:03'!
-test11BothTransferenceLegsKnowTheirCounterpart
+!TransferenceTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:36:09'!
+test13BothTransferenceLegsKnowTheirCounterpart
 
-	| transference |
-	
-	self deposit: 100 * peso on: account.
-	
-	transference := Transference from: senderAccount to: receiverAccount amount: 75 * peso.
+	| transference depositLeg withdrawLeg |
 		
-	self assert: transference withdrawLeg counterpart equals: transference depositLeg.
-	self assert: transference depositLeg counterpart equals: transference withdrawLeg.! !
-
-
-!ReceptiveAccountTest methodsFor: 'private' stamp: 'LA 6/5/2022 17:39:18'!
-deposit: anAmount on: anAccount
+	transference := self transfer: 75 * peso.
 	
-	^Deposit register: anAmount on: anAccount ! !
-
-!ReceptiveAccountTest methodsFor: 'private' stamp: 'LA 6/5/2022 17:56:36'!
-transferFrom: aSenderAccount to: aReceiverAccount amount: anAmount
+	withdrawLeg := transference withdrawLeg.
+	depositLeg := transference depositLeg.		
 	
-	^Transference from: aSenderAccount to: aReceiverAccount amount: anAmount! !
+	self assertCounterpartOf: withdrawLeg is: depositLeg.
+	self assertCounterpartOf: depositLeg is: withdrawLeg.
+! !
 
-!ReceptiveAccountTest methodsFor: 'private' stamp: 'LA 6/5/2022 17:42:39'!
-withdraw: anAmount on: anAccount
+!TransferenceTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:38:59'!
+test14TransferencesCannotHaveZeroAmount
+
+	self should: [self transfer: 0 * peso]
+		raise: Error
+		withMessageText: 'Transactions amount can not be zero!!'.
+			! !
+
+!TransferenceTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:38:44'!
+test15TransferencesCannotHaveNegativeAmount
+
+	self should: [self transfer: -10 * peso]
+		raise: Error
+		withMessageText: 'Transactions amount can not be negative!!'.
+			! !
+
+
+!TransferenceTest methodsFor: 'setUp' stamp: 'LA 6/7/2022 15:20:53'!
+setUp
+
+	senderAccount := ReceptiveAccount new.
+	receiverAccount := ReceptiveAccount new.
 	
-	^Withdraw register: anAmount on: anAccount ! !
+	Deposit register: 100 * peso on: senderAccount 
+	! !
 
 
-!ReceptiveAccountTest methodsFor: 'assertions' stamp: 'LA 6/5/2022 17:44:40'!
+!TransferenceTest methodsFor: 'assertions' stamp: 'LA 6/7/2022 15:21:41'!
 assertBalanceOf: anAccount is: anAmount
 	
 	self assert: anAccount balance equals: anAmount ! !
 
-
-!ReceptiveAccountTest methodsFor: 'setup' stamp: 'LA 6/5/2022 17:55:03'!
-setUp
+!TransferenceTest methodsFor: 'assertions' stamp: 'LA 6/7/2022 15:23:30'!
+assertCounterpartOf: aTransferenceLeg is: anotherTransferenceLeg
 	
-	account := ReceptiveAccount new.	
-	senderAccount := ReceptiveAccount new.
-	receiverAccount := ReceptiveAccount new.	! !
+	self assert: aTransferenceLeg counterpart equals: anotherTransferenceLeg ! !
 
 
 !classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Ejercicio'!
@@ -166,10 +345,10 @@ transactionValue
 
 	self subclassResponsibility ! !
 
-!AccountTransaction methodsFor: 'accessing' stamp: 'LA 6/5/2022 16:33:34'!
+!AccountTransaction methodsFor: 'accessing' stamp: 'LA 6/6/2022 20:54:08'!
 value 
 
-	^value ! !
+	self subclassResponsibility ! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -201,8 +380,13 @@ initializeFor: aValue
 	value := aValue ! !
 
 
-!Deposit methodsFor: 'accessing' stamp: 'LA 6/5/2022 16:34:11'!
+!Deposit methodsFor: 'accessing' stamp: 'LA 6/6/2022 20:54:51'!
 transactionValue
+
+	^ self value! !
+
+!Deposit methodsFor: 'accessing' stamp: 'LA 6/6/2022 20:54:26'!
+value
 
 	^ value! !
 
@@ -220,32 +404,32 @@ for: aValue
 
 !classDefinition: #DepositTransference category: 'ServiciosFinancieros-Ejercicio'!
 AccountTransaction subclass: #DepositTransference
-	instanceVariableNames: 'counterpart'
+	instanceVariableNames: 'transference'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!DepositTransference methodsFor: 'initialization' stamp: 'LA 6/5/2022 16:45:47'!
-initializeFor: aValue
+!DepositTransference methodsFor: 'initialization' stamp: 'LA 6/6/2022 20:37:46'!
+initializeAsLegOf: aTransference
 
-	value := aValue ! !
-
-
-!DepositTransference methodsFor: 'private' stamp: 'LA 6/5/2022 17:05:08'!
-counterpartWith: aWithdrawTransference
-
-	counterpart := aWithdrawTransference ! !
+	transference := aTransference. ! !
 
 
-!DepositTransference methodsFor: 'accessing' stamp: 'LA 6/5/2022 17:27:12'!
+
+!DepositTransference methodsFor: 'accessing' stamp: 'LA 6/6/2022 20:46:45'!
 counterpart
 
-	^counterpart ! !
+	^transference counterpartOf: self.! !
 
-!DepositTransference methodsFor: 'accessing' stamp: 'LA 6/5/2022 16:47:27'!
+!DepositTransference methodsFor: 'accessing' stamp: 'LA 6/6/2022 20:43:17'!
 transactionValue
 
-	^ value! !
+	^ self value! !
+
+!DepositTransference methodsFor: 'accessing' stamp: 'LA 6/6/2022 20:40:28'!
+value
+
+	^transference value.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -257,6 +441,17 @@ DepositTransference class
 for: aValue
 	
 	^self new initializeFor: aValue.! !
+
+!DepositTransference class methodsFor: 'as yet unclassified' stamp: 'LA 6/6/2022 20:44:33'!
+registerAsLegOf: aTransference on: anAccount 
+
+	| depositTransference |
+	
+	depositTransference := self new initializeAsLegOf: aTransference.
+	anAccount register: depositTransference.
+		
+	^ depositTransference
+	! !
 
 
 !classDefinition: #Withdraw category: 'ServiciosFinancieros-Ejercicio'!
@@ -272,10 +467,15 @@ initializeFor: aValue
 	value := aValue ! !
 
 
-!Withdraw methodsFor: 'accessing' stamp: 'LA 6/5/2022 16:35:10'!
+!Withdraw methodsFor: 'accessing' stamp: 'LA 6/6/2022 20:55:17'!
 transactionValue
 
-	^value negated! !
+	^self value negated! !
+
+!Withdraw methodsFor: 'accessing' stamp: 'LA 6/6/2022 20:55:22'!
+value
+
+	^ value! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -291,32 +491,32 @@ for: aValue
 
 !classDefinition: #WithdrawTransference category: 'ServiciosFinancieros-Ejercicio'!
 AccountTransaction subclass: #WithdrawTransference
-	instanceVariableNames: 'counterpart'
+	instanceVariableNames: 'transference'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!WithdrawTransference methodsFor: 'initialization' stamp: 'LA 6/5/2022 16:45:55'!
-initializeFor: aValue
+!WithdrawTransference methodsFor: 'initialization' stamp: 'LA 6/6/2022 20:39:00'!
+initializeAsLegOf: aTransference
 
-	value := aValue ! !
-
-
-!WithdrawTransference methodsFor: 'private' stamp: 'LA 6/5/2022 17:05:35'!
-counterpartWith: aDepositTransference
-
-	counterpart := aDepositTransference ! !
+	transference := aTransference. ! !
 
 
-!WithdrawTransference methodsFor: 'accessing' stamp: 'LA 6/5/2022 17:27:22'!
+
+!WithdrawTransference methodsFor: 'accessing' stamp: 'LA 6/6/2022 20:47:25'!
 counterpart
 
-	^counterpart! !
+	^transference counterpartOf: self.! !
 
-!WithdrawTransference methodsFor: 'accessing' stamp: 'LA 6/5/2022 16:47:35'!
+!WithdrawTransference methodsFor: 'accessing' stamp: 'LA 6/6/2022 20:42:52'!
 transactionValue
 
-	^ value negated! !
+	^self value negated! !
+
+!WithdrawTransference methodsFor: 'accessing' stamp: 'LA 6/6/2022 20:42:05'!
+value
+
+	^transference value.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -328,6 +528,51 @@ WithdrawTransference class
 for: aValue
 	
 	^self new initializeFor: aValue.! !
+
+!WithdrawTransference class methodsFor: 'as yet unclassified' stamp: 'LA 6/6/2022 20:44:43'!
+registerAsLegOf: aTransference on: anAccount 
+
+	| withdrawTransference |
+	
+	withdrawTransference := self new initializeAsLegOf: aTransference.
+	anAccount register: withdrawTransference.
+		
+	^ withdrawTransference! !
+
+
+!classDefinition: #Portfolio category: 'ServiciosFinancieros-Ejercicio'!
+Object subclass: #Portfolio
+	instanceVariableNames: 'finantialEntities'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'LA 6/7/2022 13:22:14'!
+add: aFinantialEntity 
+
+	finantialEntities addLast: aFinantialEntity ! !
+
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'LA 6/7/2022 13:17:47'!
+balance
+
+	^self finantialEntities sum: [:account | account balance] ifEmpty: 0.! !
+
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'LA 6/7/2022 13:17:47'!
+finantialEntities
+
+	^finantialEntities copy! !
+
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'LA 6/7/2022 14:39:15'!
+hasRegistered: aTransaction
+
+	finantialEntities detect: [ :entity | entity hasRegistered: aTransaction ] 
+		ifFound: [ :entity | ^true ] 
+		ifNone: [ ^false ]! !
+
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'LA 6/7/2022 13:17:25'!
+initialize
+
+	finantialEntities := OrderedCollection new.! !
 
 
 !classDefinition: #ReceptiveAccount category: 'ServiciosFinancieros-Ejercicio'!
@@ -373,29 +618,35 @@ Object subclass: #Transference
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Transference methodsFor: 'initialization' stamp: 'LA 6/5/2022 17:57:14'!
+!Transference methodsFor: 'initialization' stamp: 'LA 6/6/2022 20:53:01'!
 initializeFrom: aSenderAccount to: aReceiverAccount amount: anAmountToTransfer 
 
 	value := anAmountToTransfer.
+	depositLeg := DepositTransference registerAsLegOf: self on: aReceiverAccount .
+	withdrawLeg := WithdrawTransference registerAsLegOf: self on: aSenderAccount .! !
 
-	depositLeg := DepositTransference register: self value on: aReceiverAccount.
-	withdrawLeg := WithdrawTransference register: self value on: aSenderAccount.
-	
-	depositLeg counterpartWith: withdrawLeg.
-	withdrawLeg counterpartWith: depositLeg.	! !
-
-
-!Transference methodsFor: 'accessing' stamp: 'LA 6/5/2022 17:26:36'!
-depositLeg
-	
-	^depositLeg.! !
 
 !Transference methodsFor: 'accessing' stamp: 'LA 6/5/2022 17:02:28'!
 value
 	
 	^value.! !
 
-!Transference methodsFor: 'accessing' stamp: 'LA 6/5/2022 17:26:45'!
+
+!Transference methodsFor: 'private' stamp: 'LA 6/7/2022 14:29:40'!
+counterpartOf: aTranferenceLeg
+
+	(aTranferenceLeg = depositLeg) 
+		ifTrue: [^withdrawLeg]
+		ifFalse: [^depositLeg].
+! !
+
+
+!Transference methodsFor: 'testing' stamp: 'LA 6/5/2022 17:26:36'!
+depositLeg
+	
+	^depositLeg.! !
+
+!Transference methodsFor: 'testing' stamp: 'LA 6/5/2022 17:26:45'!
 withdrawLeg
 	
 	^withdrawLeg.! !
