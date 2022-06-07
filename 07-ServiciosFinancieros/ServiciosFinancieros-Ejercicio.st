@@ -16,7 +16,7 @@ test16EmptyPortfolioDoNotHasEntitiesAndBalanceZero
 	self assert: 0 equals: portfolio finantialEntities size.
 	! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:42:00'!
+!PortfolioTest methodsFor: 'tests' stamp: 'BB 6/7/2022 17:39:18'!
 test17PortfolioCanAddAnAccountAndHisBalanceEqualsAccountBalance
 	
 	| portfolio anAccount |
@@ -31,6 +31,8 @@ test17PortfolioCanAddAnAccountAndHisBalanceEqualsAccountBalance
 	
 	self assert: 1 equals: portfolio finantialEntities size.
 	self assert: anAccount balance equals: portfolio balance.
+	
+	"No estaria bueno como teniamos antes de chequear que registra y despues en otro test chequear que registra la cantidad correcta?"
 	
 	! !
 
@@ -68,7 +70,7 @@ test19PortfolioKnowsIfAnyAccountRegisteredATransaction
 	self assert: (portfolio hasRegistered: deposit).
 	! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:40:24'!
+!PortfolioTest methodsFor: 'tests' stamp: 'BB 6/7/2022 17:40:48'!
 test20PortfolioCanGetAllAccountsTransactions
 	
 	| portfolio anAccount anotherAccount |
@@ -84,6 +86,8 @@ test20PortfolioCanGetAllAccountsTransactions
 	self deposit: 200 * peso on: anotherAccount.		
 	
 	self assert: 3 equals: portfolio transactions size.
+	
+	"3?"
 	! !
 
 !PortfolioTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:36:51'!
@@ -148,14 +152,18 @@ test03WithdrawDecreasesBalanceOnTransactionValue
 
 ! !
 
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/6/2022 20:09:16'!
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'BB 6/7/2022 17:28:38'!
 test04WithdrawValueMustBePositive 
 
-	| withdrawValue |
+	| withdrawValue extractedAmount |
 	
 	withdrawValue := 50 * peso.
 	
-	self assert: withdrawValue equals: (Withdraw register: withdrawValue on: account) value
+	extractedAmount := self withdrawOnAccount: withdrawValue.
+	
+	"self assert: withdrawValue equals: (Withdraw register: withdrawValue on: account) value."
+	
+	self assert: withdrawValue equals: extractedAmount value
 ! !
 
 !ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:31:13'!
@@ -182,11 +190,10 @@ test06ReceptiveAccountDoNotKnowNotRegisteredTransactions
 	self deny: (account hasRegistered: withdraw).
 ! !
 
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:31:55'!
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'BB 6/7/2022 17:31:30'!
 test07AccountKnowsItsTransactions 
 
 	| deposit |
-	
 	
 	deposit := self depositOnAccount: 50 * peso.
 		
@@ -271,7 +278,7 @@ test11TransferenceDecreaseAndIncreaseBalanceOnTransferenceParts
 	self assertBalanceOf: senderAccount is: 25 * peso.
 	self assertBalanceOf: receiverAccount is: 75 * peso.! !
 
-!TransferenceTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:36:23'!
+!TransferenceTest methodsFor: 'tests' stamp: 'BB 6/7/2022 17:34:46'!
 test12BothPartsRegisteredTheirTransferenceLeg
 
 	| transference |
@@ -279,7 +286,9 @@ test12BothPartsRegisteredTheirTransferenceLeg
 	transference := self transfer: 75 * peso.
 		
 	self assert: (senderAccount hasRegistered: transference withdrawLeg).
-	self assert: (receiverAccount hasRegistered: transference depositLeg).! !
+	self assert: (receiverAccount hasRegistered: transference depositLeg).
+	
+	"tiene sentido que en este test sender conozca la contraparte? quien es cada pata?"! !
 
 !TransferenceTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:36:09'!
 test13BothTransferenceLegsKnowTheirCounterpart
@@ -415,7 +424,6 @@ initializeAsLegOf: aTransference
 	transference := aTransference. ! !
 
 
-
 !DepositTransference methodsFor: 'accessing' stamp: 'LA 6/6/2022 20:46:45'!
 counterpart
 
@@ -500,7 +508,6 @@ AccountTransaction subclass: #WithdrawTransference
 initializeAsLegOf: aTransference
 
 	transference := aTransference. ! !
-
 
 
 !WithdrawTransference methodsFor: 'accessing' stamp: 'LA 6/6/2022 20:47:25'!
