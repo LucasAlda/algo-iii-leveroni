@@ -5,98 +5,127 @@ TestCase subclass: #PortfolioTest
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!PortfolioTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:42:05'!
-test16EmptyPortfolioDoNotHasEntitiesAndBalanceZero
+!PortfolioTest methodsFor: 'tests' stamp: 'BB 6/7/2022 20:39:45'!
+test16EmptyPortfolioDoesNotHaveAccountsAndBalanceIsZero
 	
 	| portfolio |
 	
 	portfolio := Portfolio new.
 	
 	self assert: 0 * peso equals: portfolio balance.
-	self assert: 0 equals: portfolio finantialEntities size.
+
 	! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'BB 6/7/2022 17:39:18'!
-test17PortfolioCanAddAnAccountAndHisBalanceEqualsAccountBalance
+!PortfolioTest methodsFor: 'tests' stamp: 'BB 6/7/2022 20:39:19'!
+test17PortfolioCanAddAReceptiveAccountAndTheirBalancesAreTheSame
 	
-	| portfolio anAccount |
+	| portfolio aReceptiveAccount |
 	
 	portfolio := Portfolio new.
 	
-	anAccount := ReceptiveAccount new.
+	aReceptiveAccount := ReceptiveAccount new.
 	
-	self deposit: 100 * peso on: anAccount.
+	self deposit: 100 * peso on: aReceptiveAccount.
 	
-	portfolio add: anAccount.
+	portfolio add: aReceptiveAccount.
 	
-	self assert: 1 equals: portfolio finantialEntities size.
-	self assert: anAccount balance equals: portfolio balance.
+	self assert: aReceptiveAccount balance equals: portfolio balance.
 	
-	"No estaria bueno como teniamos antes de chequear que registra y despues en otro test chequear que registra la cantidad correcta?"
 	
 	! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:41:55'!
-test18PortfolioCanHaveMultipleAccountsAndSumBalances
+!PortfolioTest methodsFor: 'tests' stamp: 'BB 6/7/2022 20:39:06'!
+test18PortfolioCanHaveMultipleReceptiveAccountsAndSumBalances
 	
-	| portfolio anAccount anotherAccount |
+	| portfolio aReceptiveAccount anotherReceptiveAccount |
 	
 	portfolio := Portfolio new.
 	
-	anAccount := ReceptiveAccount new.
-	anotherAccount := ReceptiveAccount new.
+	aReceptiveAccount := ReceptiveAccount new.
+	anotherReceptiveAccount := ReceptiveAccount new.
 	
-	self deposit: 100 * peso on: anAccount.
-	self deposit: 200 * peso on: anotherAccount.
+	self deposit: 100 * peso on: aReceptiveAccount.
+	self deposit: 200 * peso on: anotherReceptiveAccount.
 	
-	portfolio add: anAccount.
-	portfolio add: anotherAccount. 
+	portfolio add: aReceptiveAccount.
+	portfolio add: anotherReceptiveAccount. 
 	
-	self assert: 2 equals: portfolio finantialEntities size.
 	self assert: 300 * peso equals: portfolio balance.
 	! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:40:29'!
-test19PortfolioKnowsIfAnyAccountRegisteredATransaction
+!PortfolioTest methodsFor: 'tests' stamp: 'BB 6/7/2022 19:54:52'!
+test19PortfolioKnowsIfAReceptiveAccountRegisteredATransaction
 	
-	| portfolio anAccount deposit |
+	| portfolio aReceptiveAccount deposit |
 	
 	portfolio := Portfolio new.
-	anAccount := ReceptiveAccount new.
+	aReceptiveAccount := ReceptiveAccount new.
 
-	portfolio add: anAccount.
-	deposit := self deposit: 100 * peso on: anAccount.
+	portfolio add: aReceptiveAccount.
+	deposit := self deposit: 100 * peso on: aReceptiveAccount.
 		
 	self assert: (portfolio hasRegistered: deposit).
 	! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'BB 6/7/2022 17:40:48'!
-test20PortfolioCanGetAllAccountsTransactions
+!PortfolioTest methodsFor: 'tests' stamp: 'BB 6/7/2022 19:57:24'!
+test20PortfolioCanGetAllReceptiveAccountsTransactions
 	
-	| portfolio anAccount anotherAccount |
+	| portfolio aReceptiveAccount anotherReceptiveAccount |
 	
 	portfolio := Portfolio new.
-	anAccount := ReceptiveAccount new.
-	anotherAccount := ReceptiveAccount new.
+	aReceptiveAccount := ReceptiveAccount new.
+	anotherReceptiveAccount := ReceptiveAccount new.
 
-	portfolio add: anAccount.
-	portfolio add: anotherAccount.	
+	portfolio add: aReceptiveAccount.
+	portfolio add: anotherReceptiveAccount.	
 	
-	self deposit: 100 * peso on: anAccount.
-	self deposit: 200 * peso on: anotherAccount.		
+	self deposit: 100 * peso on: aReceptiveAccount.
+	self deposit: 200 * peso on: anotherReceptiveAccount.		
 	
-	self assert: 3 equals: portfolio transactions size.
+	self assert: 2 equals: portfolio transactions size.
 	
-	"3?"
 	! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:36:51'!
-testXXPortfolioCanHaveMultiplePortfoliosAndAccounts
+!PortfolioTest methodsFor: 'tests' stamp: 'BB 6/7/2022 20:38:50'!
+test21PortfolioCanAddAnEmptyPortfolio
 	
-	| portfolio anotherPortfolio anAccount anotherAccount |
+	| portfolio anotherPortfolio |
 	
 	portfolio := Portfolio new.
 	anotherPortfolio := Portfolio new.	
+		
+	portfolio add: anotherPortfolio.
+	
+	self assert: 0 * peso equals: portfolio balance.
+	! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'BB 6/7/2022 20:38:43'!
+test22PortfolioCanAddAPortfolioAndTheirBalancesAreTheSame
+	
+	| portfolio anotherPortfolio aReceptiveAccount |
+	
+	portfolio := Portfolio new.
+	anotherPortfolio := Portfolio new.	
+		
+	portfolio add: anotherPortfolio.
+	
+	aReceptiveAccount := ReceptiveAccount new.
+	self deposit: 100 * peso on: aReceptiveAccount.
+	
+	anotherPortfolio add: aReceptiveAccount.
+	
+	self assert: 100 * peso equals: portfolio balance.
+	! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'BB 6/7/2022 20:36:42'!
+test23PortfolioCanHaveMultiplePortfoliosAndSumBalances
+	
+	| portfolio childPortfolio anotherChildPortfolio anAccount anotherAccount |
+	
+	portfolio := Portfolio new.
+	
+	childPortfolio := Portfolio new.
+	anotherChildPortfolio := Portfolio new.	
 	
 	anAccount := ReceptiveAccount new.
 	anotherAccount := ReceptiveAccount new.
@@ -104,13 +133,76 @@ testXXPortfolioCanHaveMultiplePortfoliosAndAccounts
 	self deposit: 100 * peso on: anAccount.
 	self deposit: 200 * peso on: anotherAccount.
 
-	portfolio add: anAccount.
-	anotherPortfolio add: anotherAccount. 
+	childPortfolio add: anAccount.
+	anotherChildPortfolio add: anotherAccount. 
 	
+	portfolio add: childPortfolio.
+	portfolio add: anotherChildPortfolio.
+	
+	self assert: 300 * peso equals: portfolio balance.
+	! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'BB 6/7/2022 20:37:43'!
+test24PortfolioCanHaveMultiplePortfoliosAndAccounts
+	
+	| portfolio childPortfolio aReceptiveAccount childPortfolioReceptiveAccount |
+	
+	portfolio := Portfolio new.
+	childPortfolio := Portfolio new.	
+	aReceptiveAccount := ReceptiveAccount new.
+	childPortfolioReceptiveAccount := ReceptiveAccount new.
+	
+	self deposit: 100 * peso on: aReceptiveAccount.
+	self deposit: 200 * peso on: childPortfolioReceptiveAccount.
+
+	portfolio add: aReceptiveAccount.
+	childPortfolio add: childPortfolioReceptiveAccount. 
+	
+	portfolio add: childPortfolio.
+	
+	self assert: 300 * peso equals: portfolio balance.
+	! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'BB 6/7/2022 20:46:38'!
+test25PortfolioKnowsRegisteredTransactionsInChildPortfolio
+	
+	| portfolio anotherPortfolio aReceptiveAccount deposit |
+	
+	portfolio := Portfolio new.
+	anotherPortfolio := Portfolio new.	
+		
 	portfolio add: anotherPortfolio.
 	
-	self assert: 2 equals: portfolio finantialEntities size.
-	self assert: 300 * peso equals: portfolio balance.
+	aReceptiveAccount := ReceptiveAccount new.
+	deposit := self deposit: 100 * peso on: aReceptiveAccount.
+	
+	anotherPortfolio add: aReceptiveAccount.
+	
+	self assert: (portfolio hasRegistered: deposit)! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'BB 6/7/2022 20:55:18'!
+test26PortfolioWithMultiplePortfoliosKnowsAllTransactions
+	
+	| portfolio childPortfolio anotherChildPortfolio anAccount anotherAccount |
+	
+	portfolio := Portfolio new.
+	
+	childPortfolio := Portfolio new.
+	anotherChildPortfolio := Portfolio new.	
+	
+	anAccount := ReceptiveAccount new.
+	anotherAccount := ReceptiveAccount new.
+	
+	self deposit: 100 * peso on: anAccount.
+	self deposit: 200 * peso on: anotherAccount.
+
+	childPortfolio add: anAccount.
+	anotherChildPortfolio add: anotherAccount. 
+	
+	portfolio add: childPortfolio.
+	portfolio add: anotherChildPortfolio.
+	
+	self assert: 2 equals: portfolio transactions size.
 	! !
 
 
@@ -118,6 +210,95 @@ testXXPortfolioCanHaveMultiplePortfoliosAndAccounts
 deposit: anAmount on: anAccount
 	
 	^Deposit register: anAmount on: anAccount ! !
+
+
+!PortfolioTest methodsFor: 'tests extra' stamp: 'BB 6/7/2022 21:47:25'!
+test27APortfolioCanNotHaveTheSameReceptiveAccount
+
+	| receptiveAccount portfolio |
+	
+	receptiveAccount := ReceptiveAccount new.
+	portfolio := Portfolio new.
+	
+	portfolio add: receptiveAccount.
+	
+	self should: [portfolio add: receptiveAccount.]
+		raise: Error
+		withMessageText: 'This Account is already included in this portfolio!!'.
+	
+	
+	! !
+
+!PortfolioTest methodsFor: 'tests extra' stamp: 'BB 6/7/2022 22:14:25'!
+test28APortfolioCanNotIncludeTheSamePortfolioTwice
+
+	| childPortfolio portfolio |
+	
+	portfolio := Portfolio new.
+	childPortfolio := Portfolio new.
+	
+	portfolio add: childPortfolio .
+	
+	self should: [portfolio add: childPortfolio ]
+		raise: Error
+		withMessageText: 'This Account is already included in this portfolio!!'.
+	
+	
+	! !
+
+!PortfolioTest methodsFor: 'tests extra' stamp: 'BB 6/7/2022 22:14:38'!
+test29APortfolioCanNotAddAReceptiveAccountAlreadyIncludedInAPreviouslyAddedPortfolio
+
+	| receptiveAccount portfolio childPortfolio |
+	
+	receptiveAccount := ReceptiveAccount new.
+	portfolio := Portfolio new.
+	childPortfolio := Portfolio new.
+	
+	childPortfolio add: receptiveAccount.
+	
+	portfolio add: childPortfolio.
+	
+	self should: [portfolio add: receptiveAccount.]
+		raise: Error
+		withMessageText: 'This Account is already included in this portfolio!!'.
+	
+	
+	! !
+
+!PortfolioTest methodsFor: 'tests extra' stamp: 'BB 6/7/2022 22:17:09'!
+test30APortfolioCanNotAddAPortfolioAlreadyIncludedInAPreviouslyAddedPortfolio
+
+	| grandsonPortfolio portfolio childPortfolio |
+	
+	portfolio := Portfolio new.
+	childPortfolio := Portfolio new.
+	grandsonPortfolio := Portfolio new.
+	
+	childPortfolio add: grandsonPortfolio .
+	
+	portfolio add: childPortfolio.
+	
+	self should: [portfolio add: grandsonPortfolio]
+		raise: Error
+		withMessageText: 'This Account is already included in this portfolio!!'.
+	
+	
+	! !
+
+!PortfolioTest methodsFor: 'tests extra' stamp: 'BB 6/7/2022 22:17:23'!
+test31APortfolioCanNotIncludeItself
+
+	| portfolio |
+	
+	portfolio := Portfolio new.
+	
+	self should: [portfolio add: portfolio.]
+		raise: Error
+		withMessageText: 'A Portfolio Can Not Be Included In Itself!!'.
+	
+	
+	! !
 
 
 !classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Ejercicio'!
@@ -278,7 +459,7 @@ test11TransferenceDecreaseAndIncreaseBalanceOnTransferenceParts
 	self assertBalanceOf: senderAccount is: 25 * peso.
 	self assertBalanceOf: receiverAccount is: 75 * peso.! !
 
-!TransferenceTest methodsFor: 'tests' stamp: 'BB 6/7/2022 17:34:46'!
+!TransferenceTest methodsFor: 'tests' stamp: 'BB 6/7/2022 19:27:21'!
 test12BothPartsRegisteredTheirTransferenceLeg
 
 	| transference |
@@ -288,7 +469,7 @@ test12BothPartsRegisteredTheirTransferenceLeg
 	self assert: (senderAccount hasRegistered: transference withdrawLeg).
 	self assert: (receiverAccount hasRegistered: transference depositLeg).
 	
-	"tiene sentido que en este test sender conozca la contraparte? quien es cada pata?"! !
+! !
 
 !TransferenceTest methodsFor: 'tests' stamp: 'LA 6/7/2022 15:36:09'!
 test13BothTransferenceLegsKnowTheirCounterpart
@@ -524,37 +705,68 @@ register: aValue asLegOf: aTransference on: anAccount
 
 !classDefinition: #Portfolio category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #Portfolio
-	instanceVariableNames: 'finantialEntities'
+	instanceVariableNames: 'accounts'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Portfolio methodsFor: 'as yet unclassified' stamp: 'LA 6/7/2022 13:22:14'!
-add: aFinantialEntity 
-
-	finantialEntities addLast: aFinantialEntity ! !
-
-!Portfolio methodsFor: 'as yet unclassified' stamp: 'LA 6/7/2022 13:17:47'!
-balance
-
-	^self finantialEntities sum: [:account | account balance] ifEmpty: 0.! !
-
-!Portfolio methodsFor: 'as yet unclassified' stamp: 'LA 6/7/2022 13:17:47'!
-finantialEntities
-
-	^finantialEntities copy! !
-
-!Portfolio methodsFor: 'as yet unclassified' stamp: 'LA 6/7/2022 14:39:15'!
-hasRegistered: aTransaction
-
-	finantialEntities detect: [ :entity | entity hasRegistered: aTransaction ] 
-		ifFound: [ :entity | ^true ] 
-		ifNone: [ ^false ]! !
-
-!Portfolio methodsFor: 'as yet unclassified' stamp: 'LA 6/7/2022 13:17:25'!
+!Portfolio methodsFor: 'initialization' stamp: 'BB 6/7/2022 19:38:50'!
 initialize
 
-	finantialEntities := OrderedCollection new.! !
+	accounts := OrderedCollection new.! !
+
+
+!Portfolio methodsFor: 'testing' stamp: 'BB 6/7/2022 19:58:00'!
+hasRegistered: aTransaction
+		
+	^accounts anySatisfy: [ :account | account hasRegistered: aTransaction ]! !
+
+!Portfolio methodsFor: 'testing' stamp: 'BB 6/7/2022 21:36:45'!
+includes: anAccount
+		
+	^accounts anySatisfy: [ :account | (account = anAccount) or: (account includes: anAccount)]! !
+
+
+!Portfolio methodsFor: 'main protocol' stamp: 'BB 6/7/2022 22:06:42'!
+add: anAccount 
+
+	(self includes: anAccount) ifTrue: [self error: self class accountIsAlreadyIncludedDescription].
+	(self = 	anAccount) ifTrue: [self error: self class portfolioCanNotIncludeItselfDescription].
+	
+	accounts addLast: anAccount ! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'BB 6/7/2022 20:40:42'!
+balance
+
+	^accounts sum: [:account | account balance] ifEmpty: 0.
+	! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'BB 6/7/2022 20:07:41'!
+transactions
+		
+	| allTransactions |
+	
+	allTransactions := OrderedCollection new.
+	
+	accounts do: [ :anAccount | allTransactions addAllLast: anAccount transactions].
+	
+	^allTransactions. ! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Portfolio class' category: 'ServiciosFinancieros-Ejercicio'!
+Portfolio class
+	instanceVariableNames: ''!
+
+!Portfolio class methodsFor: 'as yet unclassified' stamp: 'BB 6/7/2022 22:06:42'!
+accountIsAlreadyIncludedDescription
+
+	^'This Account is already included in this portfolio!!'! !
+
+!Portfolio class methodsFor: 'as yet unclassified' stamp: 'BB 6/7/2022 22:07:07'!
+portfolioCanNotIncludeItselfDescription
+
+	^'A Portfolio Can Not Be Included In Itself!!'.! !
 
 
 !classDefinition: #ReceptiveAccount category: 'ServiciosFinancieros-Ejercicio'!
@@ -580,6 +792,11 @@ hasRegistered: aTransaction
 
 	^ transactions includes: aTransaction 
 ! !
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'BB 6/7/2022 21:35:01'!
+includes: anAccount
+
+	^false.! !
 
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'HernanWilkinson 7/13/2011 18:37'!
 register: aTransaction
