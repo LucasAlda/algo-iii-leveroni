@@ -300,6 +300,49 @@ test31APortfolioCanNotIncludeItself
 	
 	! !
 
+!PortfolioTest methodsFor: 'tests extra' stamp: 'LA 6/7/2022 22:44:45'!
+test32APortfolioCanNotIncludeAnAccountWhenTheFirstOneIsAlreadyIncludedOnAPortfolioThatIncludesTheAccount
+
+	| portfolio receptiveAccount parentPortfolio |
+
+	
+	portfolio := Portfolio new.
+	
+	parentPortfolio := Portfolio new.
+	
+	receptiveAccount := ReceptiveAccount new.
+	
+	parentPortfolio add: receptiveAccount.
+	
+	parentPortfolio add: portfolio.
+	
+	self should: [ portfolio add: receptiveAccount ]
+		raise: Error
+		withMessageText: 'A portfolio can not include an account when the first one is already included on a portfolio that includes the account!!'.
+	
+	
+	! !
+
+!PortfolioTest methodsFor: 'tests extra' stamp: 'LA 6/7/2022 23:30:34'!
+test33AccountCannotBeIncludedWhenThePortfolioAlreadyIncludesAnyOfItsDescendants
+
+	| grandsonPortfolio portfolio childPortfolio receptiveAccount |
+	
+	portfolio := Portfolio new.
+	childPortfolio := Portfolio new.
+	grandsonPortfolio := Portfolio new.
+	
+	receptiveAccount := ReceptiveAccount new.
+	
+	grandsonPortfolio add: receptiveAccount.
+	childPortfolio add: grandsonPortfolio.
+	
+	portfolio add: receptiveAccount.
+	
+	self should: [ portfolio add: childPortfolio ]
+		raise: Error
+		withMessageText: 'A portfolio can not include an account when the first one already includes a descendant from the second one!!'.! !
+
 
 !classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Ejercicio'!
 TestCase subclass: #ReceptiveAccountTest
@@ -523,6 +566,207 @@ assertCounterpartOf: aTransferenceLeg is: anotherTransferenceLeg
 	self assert: aTransferenceLeg counterpart equals: anotherTransferenceLeg ! !
 
 
+!classDefinition: #Account category: 'ServiciosFinancieros-Ejercicio'!
+Object subclass: #Account
+	instanceVariableNames: 'parents'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!Account methodsFor: 'as yet unclassified' stamp: 'LA 6/7/2022 22:34:21'!
+addParent: aPortfolio
+
+	parents addLast: aPortfolio! !
+
+!Account methodsFor: 'as yet unclassified' stamp: 'LA 6/7/2022 23:12:13'!
+allDescendantsAccounts
+	
+	self subclassResponsibility.! !
+
+!Account methodsFor: 'as yet unclassified' stamp: 'LA 6/7/2022 22:36:02'!
+anyParentIncludes: anAccount
+
+	^parents anySatisfy: [:aParent | aParent includes: anAccount ].! !
+
+!Account methodsFor: 'as yet unclassified' stamp: 'LA 6/7/2022 22:27:18'!
+balance
+
+	self subclassResponsibility ! !
+
+!Account methodsFor: 'as yet unclassified' stamp: 'LA 6/7/2022 22:27:32'!
+hasRegistered: aTransaction
+
+	self subclassResponsibility ! !
+
+!Account methodsFor: 'as yet unclassified' stamp: 'LA 6/7/2022 22:27:42'!
+includes: anAccount
+
+	self subclassResponsibility ! !
+
+!Account methodsFor: 'as yet unclassified' stamp: 'LA 6/7/2022 22:45:42'!
+initialize
+
+	parents := OrderedCollection new.! !
+
+!Account methodsFor: 'as yet unclassified' stamp: 'LA 6/7/2022 22:28:23'!
+transactions
+
+	self subclassResponsibility ! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Account class' category: 'ServiciosFinancieros-Ejercicio'!
+Account class
+	instanceVariableNames: ''!
+
+!Account class methodsFor: 'as yet unclassified' stamp: 'LA 6/7/2022 23:16:57'!
+accountCannotBeAddedWhenAParentAlreadyIncludesItDescription
+
+	^'A portfolio can not include an account when the first one is already included on a portfolio that includes the account!!'.! !
+
+!Account class methodsFor: 'as yet unclassified' stamp: 'LA 6/7/2022 23:18:44'!
+accountCannotBeIncludedWhenThePortfolioAlreadyIncludesAnyOfItsDescendants
+
+	^'A portfolio can not include an account when the first one already includes a descendant from the second one!!'.! !
+
+
+!classDefinition: #Portfolio category: 'ServiciosFinancieros-Ejercicio'!
+Account subclass: #Portfolio
+	instanceVariableNames: 'accounts'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!Portfolio methodsFor: 'initialization' stamp: 'LA 6/7/2022 22:45:56'!
+initialize
+
+	super initialize.
+	
+	accounts := OrderedCollection new.! !
+
+
+!Portfolio methodsFor: 'testing' stamp: 'BB 6/7/2022 19:58:00'!
+hasRegistered: aTransaction
+		
+	^accounts anySatisfy: [ :account | account hasRegistered: aTransaction ]! !
+
+!Portfolio methodsFor: 'testing' stamp: 'BB 6/7/2022 21:36:45'!
+includes: anAccount
+		
+	^accounts anySatisfy: [ :account | (account = anAccount) or: (account includes: anAccount)]! !
+
+
+!Portfolio methodsFor: 'main protocol' stamp: 'LA 6/7/2022 23:17:45'!
+add: anAccount 
+
+	(self includes: anAccount) ifTrue: [self error: self class accountIsAlreadyIncludedDescription].
+	(self = 	anAccount) ifTrue: [self error: self class portfolioCanNotIncludeItselfDescription].
+	(self anyParentIncludes: anAccount) ifTrue: [self error: self class accountCannotBeAddedWhenAParentAlreadyIncludesItDescription ].
+	(self includesAnyDescendantOf: anAccount) 
+		ifTrue: [self error: self class accountCannotBeIncludedWhenThePortfolioAlreadyIncludesAnyOfItsDescendants].
+	
+	accounts addLast: anAccount.
+	
+	anAccount addParent: self.! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'LA 6/7/2022 23:10:06'!
+allDescendantsAccounts
+		
+	| allDescendants |
+	
+	allDescendants := accounts copy.
+	
+	accounts do: [ :anAccount | allDescendants addAllLast: anAccount allDescendantsAccounts ].
+	
+	^allDescendants. ! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'BB 6/7/2022 20:40:42'!
+balance
+
+	^accounts sum: [:account | account balance] ifEmpty: 0.
+	! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'LA 6/7/2022 23:16:04'!
+includesAnyDescendantOf: anAccount
+
+	^ anAccount allDescendantsAccounts anySatisfy: [:aDescendant | self includes: aDescendant ]! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'BB 6/7/2022 20:07:41'!
+transactions
+		
+	| allTransactions |
+	
+	allTransactions := OrderedCollection new.
+	
+	accounts do: [ :anAccount | allTransactions addAllLast: anAccount transactions].
+	
+	^allTransactions. ! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Portfolio class' category: 'ServiciosFinancieros-Ejercicio'!
+Portfolio class
+	instanceVariableNames: ''!
+
+!Portfolio class methodsFor: 'as yet unclassified' stamp: 'BB 6/7/2022 22:06:42'!
+accountIsAlreadyIncludedDescription
+
+	^'This Account is already included in this portfolio!!'! !
+
+!Portfolio class methodsFor: 'as yet unclassified' stamp: 'BB 6/7/2022 22:07:07'!
+portfolioCanNotIncludeItselfDescription
+
+	^'A Portfolio Can Not Be Included In Itself!!'.! !
+
+
+!classDefinition: #ReceptiveAccount category: 'ServiciosFinancieros-Ejercicio'!
+Account subclass: #ReceptiveAccount
+	instanceVariableNames: 'transactions'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!ReceptiveAccount methodsFor: 'initialization' stamp: 'LA 6/7/2022 22:46:06'!
+initialize
+
+	super initialize.
+
+	transactions := OrderedCollection new.! !
+
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'LA 6/7/2022 23:11:22'!
+allDescendantsAccounts
+
+	^OrderedCollection new.! !
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'LA 6/5/2022 16:35:17'!
+balance
+
+	^transactions sum: [ :aTransaction | aTransaction transactionValue ] ifEmpty: [ 0 ]! !
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'NR 10/17/2019 03:28:43'!
+hasRegistered: aTransaction
+
+	^ transactions includes: aTransaction 
+! !
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'BB 6/7/2022 21:35:01'!
+includes: anAccount
+
+	^false.! !
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'HernanWilkinson 7/13/2011 18:37'!
+register: aTransaction
+
+	transactions add: aTransaction 
+! !
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'HernanWilkinson 7/13/2011 18:37'!
+transactions 
+
+	^ transactions copy! !
+
+
 !classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #AccountTransaction
 	instanceVariableNames: 'value'
@@ -541,12 +785,23 @@ value
 	^value! !
 
 
-!AccountTransaction methodsFor: 'initialization' stamp: 'LA 6/7/2022 19:16:14'!
+!AccountTransaction methodsFor: 'initialization' stamp: 'LA 6/7/2022 22:30:25'!
 initializeFor: aValue
 
-	(aValue <= 0) ifTrue: [self error: 'Transactions amount must be positive!!'].
+	(aValue <= 0) ifTrue: [self error: self class transactionMustBePositiveDescription ].
 
 	value := aValue ! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'AccountTransaction class' category: 'ServiciosFinancieros-Ejercicio'!
+AccountTransaction class
+	instanceVariableNames: ''!
+
+!AccountTransaction class methodsFor: 'as yet unclassified' stamp: 'LA 6/7/2022 22:29:54'!
+transactionMustBePositiveDescription
+
+	^'Transactions amount must be positive!!'! !
 
 
 !classDefinition: #Deposit category: 'ServiciosFinancieros-Ejercicio'!
@@ -701,113 +956,6 @@ register: aValue asLegOf: aTransference on: anAccount
 		
 	^ depositTransference
 	! !
-
-
-!classDefinition: #Portfolio category: 'ServiciosFinancieros-Ejercicio'!
-Object subclass: #Portfolio
-	instanceVariableNames: 'accounts'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'ServiciosFinancieros-Ejercicio'!
-
-!Portfolio methodsFor: 'initialization' stamp: 'BB 6/7/2022 19:38:50'!
-initialize
-
-	accounts := OrderedCollection new.! !
-
-
-!Portfolio methodsFor: 'testing' stamp: 'BB 6/7/2022 19:58:00'!
-hasRegistered: aTransaction
-		
-	^accounts anySatisfy: [ :account | account hasRegistered: aTransaction ]! !
-
-!Portfolio methodsFor: 'testing' stamp: 'BB 6/7/2022 21:36:45'!
-includes: anAccount
-		
-	^accounts anySatisfy: [ :account | (account = anAccount) or: (account includes: anAccount)]! !
-
-
-!Portfolio methodsFor: 'main protocol' stamp: 'BB 6/7/2022 22:06:42'!
-add: anAccount 
-
-	(self includes: anAccount) ifTrue: [self error: self class accountIsAlreadyIncludedDescription].
-	(self = 	anAccount) ifTrue: [self error: self class portfolioCanNotIncludeItselfDescription].
-	
-	accounts addLast: anAccount ! !
-
-!Portfolio methodsFor: 'main protocol' stamp: 'BB 6/7/2022 20:40:42'!
-balance
-
-	^accounts sum: [:account | account balance] ifEmpty: 0.
-	! !
-
-!Portfolio methodsFor: 'main protocol' stamp: 'BB 6/7/2022 20:07:41'!
-transactions
-		
-	| allTransactions |
-	
-	allTransactions := OrderedCollection new.
-	
-	accounts do: [ :anAccount | allTransactions addAllLast: anAccount transactions].
-	
-	^allTransactions. ! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'Portfolio class' category: 'ServiciosFinancieros-Ejercicio'!
-Portfolio class
-	instanceVariableNames: ''!
-
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'BB 6/7/2022 22:06:42'!
-accountIsAlreadyIncludedDescription
-
-	^'This Account is already included in this portfolio!!'! !
-
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'BB 6/7/2022 22:07:07'!
-portfolioCanNotIncludeItselfDescription
-
-	^'A Portfolio Can Not Be Included In Itself!!'.! !
-
-
-!classDefinition: #ReceptiveAccount category: 'ServiciosFinancieros-Ejercicio'!
-Object subclass: #ReceptiveAccount
-	instanceVariableNames: 'transactions'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'ServiciosFinancieros-Ejercicio'!
-
-!ReceptiveAccount methodsFor: 'initialization' stamp: 'NR 10/17/2019 15:06:56'!
-initialize
-
-	transactions := OrderedCollection new.! !
-
-
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'LA 6/5/2022 16:35:17'!
-balance
-
-	^transactions sum: [ :aTransaction | aTransaction transactionValue ] ifEmpty: [ 0 ]! !
-
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'NR 10/17/2019 03:28:43'!
-hasRegistered: aTransaction
-
-	^ transactions includes: aTransaction 
-! !
-
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'BB 6/7/2022 21:35:01'!
-includes: anAccount
-
-	^false.! !
-
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'HernanWilkinson 7/13/2011 18:37'!
-register: aTransaction
-
-	transactions add: aTransaction 
-! !
-
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'HernanWilkinson 7/13/2011 18:37'!
-transactions 
-
-	^ transactions copy! !
 
 
 !classDefinition: #Transference category: 'ServiciosFinancieros-Ejercicio'!
