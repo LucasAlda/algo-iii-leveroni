@@ -1,94 +1,89 @@
 !classDefinition: #AccountSummaryTest category: 'ServiciosFinancieros-Solucion'!
 TestCase subclass: #AccountSummaryTest
-	instanceVariableNames: ''
+	instanceVariableNames: 'receptiveAccount portfolio'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!AccountSummaryTest methodsFor: 'as yet unclassified' stamp: 'LA 6/11/2022 21:17:56'!
+!AccountSummaryTest methodsFor: 'setup' stamp: 'BB 6/16/2022 15:57:56'!
+setUp
+
+	receptiveAccount := ReceptiveAccount new.
+	portfolio := Portfolio new.! !
+
+
+!AccountSummaryTest methodsFor: 'tests' stamp: 'BB 6/16/2022 15:53:58'!
 test01AnAccountSummaryForAReceptiveAccountWithoutTransactionsOnlyShowsBalanceIsZero
 
-	| account report |
-	account := ReceptiveAccount new.
+	| report |
 	
-	report := AccountSummary for: account.
+	report := AccountSummary for: receptiveAccount.
 	
 	self assert: report generate equals: 'Balance = 0 * pesos'! !
 
-!AccountSummaryTest methodsFor: 'as yet unclassified' stamp: 'LA 6/11/2022 21:21:25'!
+!AccountSummaryTest methodsFor: 'tests' stamp: 'BB 6/16/2022 15:53:58'!
 test02AnAccountSummaryForAReceptiveAccountWithATransactionListsItAndCalculatesBalance
 
-	| account report |
+	| report |
 	
-	account := ReceptiveAccount new.
-	
-	Deposit register: 100 * peso on: account.
-	report := AccountSummary for: account.
+	Deposit register: 100 * peso on: receptiveAccount .
+	report := AccountSummary for: receptiveAccount .
 	
 	self assert: report generate equals:  
 'Depósito por 100 * pesos
 Balance = 100 * pesos'! !
 
-!AccountSummaryTest methodsFor: 'as yet unclassified' stamp: 'LA 6/11/2022 21:23:22'!
+!AccountSummaryTest methodsFor: 'tests' stamp: 'BB 6/16/2022 15:57:56'!
 test03AnAccountSummaryForAPortfolioWithoutTransactionsOnlyShowsBalanceIsZero
 
-	| portfolio report receptiveAccount |
+	| report |
 	
-	receptiveAccount := ReceptiveAccount new.
-	
-	portfolio := Portfolio new.
-	portfolio add: receptiveAccount.
+	portfolio add: receptiveAccount .
 	
 	report := AccountSummary for: portfolio.
 	
 	self assert: report generate equals: 'Balance = 0 * pesos'! !
 
-!AccountSummaryTest methodsFor: 'as yet unclassified' stamp: 'LA 6/11/2022 21:24:11'!
+!AccountSummaryTest methodsFor: 'tests' stamp: 'BB 6/16/2022 15:57:56'!
 test04AnAccountSummaryForAPortfolioWithATransactionListsItAndCalculatesBalance
 
-	| portfolio report receptiveAccount |
+	| report |
 	
-	receptiveAccount := ReceptiveAccount new.
+	portfolio add: receptiveAccount .
 	
-	portfolio := Portfolio new.
-	portfolio add: receptiveAccount.
+	Deposit register: 100 * peso on: receptiveAccount .
 	
-	Deposit register: 100 * peso on: receptiveAccount.
-	
-	report := AccountSummary for: portfolio.
+	report := AccountSummary for: portfolio .
 	
 	self assert: report generate equals:  
 'Depósito por 100 * pesos
 Balance = 100 * pesos'! !
 
-!AccountSummaryTest methodsFor: 'as yet unclassified' stamp: 'LA 6/11/2022 21:21:55'!
+!AccountSummaryTest methodsFor: 'tests' stamp: 'BB 6/16/2022 15:53:58'!
 test05AnAccountSummaryCanShowNegativeBalance
 
-	| account report |
-	
-	account := ReceptiveAccount new.
-	
-	Withdraw register: 100 * peso on: account.
-	report := AccountSummary for: account.
+	| report |
+
+	Withdraw register: 100 * peso on: receptiveAccount .
+	report := AccountSummary for: receptiveAccount .
 	
 	self assert: report generate equals:  
 'Extracción por 100 * pesos
 Balance = -100 * pesos'! !
 
-!AccountSummaryTest methodsFor: 'as yet unclassified' stamp: 'LA 6/11/2022 21:21:36'!
+!AccountSummaryTest methodsFor: 'tests' stamp: 'BB 6/16/2022 15:53:58'!
 test06AnAccountSummaryForAReceptiveAccountWithManyTransactionListAllTransactionsAndBalance
 
-	| account report anotherAccount |
-	
-	account := ReceptiveAccount new.
-	anotherAccount := ReceptiveAccount new.	
+	| report anotherReceptiveAccount |
 
-	Deposit register: 100 * peso on: account.
-	Withdraw register: 50 * peso on: account.
-	Transfer amount: 20 * peso from: account to: anotherAccount.
-	Transfer amount: 30 * peso from: anotherAccount to: account.	
+	anotherReceptiveAccount := ReceptiveAccount new.	
+
+	Deposit register: 100 * peso on: receptiveAccount .
+	Withdraw register: 50 * peso on: receptiveAccount .
+	Transfer amount: 20 * peso from: receptiveAccount to: anotherReceptiveAccount.
+	Transfer amount: 30 * peso from: anotherReceptiveAccount to: receptiveAccount .	
 		
-	report := AccountSummary for: account.
+	report := AccountSummary for: receptiveAccount .
 	
 	self assert: report generate equals:  
 'Depósito por 100 * pesos
@@ -98,12 +93,11 @@ Entrada por transferencia de 30 * pesos
 Balance = 60 * pesos'
 ! !
 
-!AccountSummaryTest methodsFor: 'as yet unclassified' stamp: 'LA 6/11/2022 21:33:31'!
+!AccountSummaryTest methodsFor: 'tests' stamp: 'BB 6/16/2022 15:57:56'!
 test07AnAccountSummaryForAPortfolioWithManyTransactionsFromManyAccountsListAllTransactionsAndBalance
 
-	| receptiveAccount report anotherReceptiveAccount anotherPortfolio portfolio |
+	| report anotherReceptiveAccount anotherPortfolio |
 	
-	receptiveAccount := ReceptiveAccount new.
 	anotherReceptiveAccount := ReceptiveAccount new.	
 
 	Deposit register: 100 * peso on: receptiveAccount.
@@ -111,14 +105,13 @@ test07AnAccountSummaryForAPortfolioWithManyTransactionsFromManyAccountsListAllTr
 	Transfer amount: 20 * peso from: receptiveAccount to: anotherReceptiveAccount.
 	Transfer amount: 30 * peso from: anotherReceptiveAccount to: receptiveAccount.	
 	
-	portfolio := Portfolio new.
 	anotherPortfolio := Portfolio new.
 	
 	anotherPortfolio add: anotherReceptiveAccount.
 	portfolio add: receptiveAccount.
 	portfolio add: anotherPortfolio.
 		
-	report := AccountSummary for: portfolio.
+	report := AccountSummary for: portfolio .
 	
 	self assert: report generate equals:  
 'Depósito por 100 * pesos
@@ -130,17 +123,15 @@ Salida por transferencia de 30 * pesos
 Balance = 50 * pesos'
 ! !
 
-!AccountSummaryTest methodsFor: 'as yet unclassified' stamp: 'LA 6/11/2022 21:25:36'!
+!AccountSummaryTest methodsFor: 'tests' stamp: 'BB 6/16/2022 15:57:44'!
 test08AnAccountSummaryCanIdentifyDifferentTransactionsWithTheSameNature
 
-	| account report |
+	| report |
 	
-	account := ReceptiveAccount new.
-	
-	Deposit register: 100 * peso on: account.
-	Deposit register: 50 * peso on: account.
+	Deposit register: 100 * peso on: receptiveAccount .
+	Deposit register: 50 * peso on: receptiveAccount .
 		
-	report := AccountSummary for: account.
+	report := AccountSummary for: receptiveAccount .
 	
 	self assert: report generate equals:  
 'Depósito por 100 * pesos
@@ -1060,17 +1051,18 @@ signalCanNotAddAccount
 Portfolio class
 	instanceVariableNames: ''!
 
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'HAW 5/25/2019 11:48:55'!
+!Portfolio class methodsFor: 'error messages' stamp: 'HAW 5/25/2019 11:48:55'!
 canNotAddAccountErrorMessage
 	
 	^'Can not add repeated account to a portfolio'! !
 
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'LA 6/15/2022 20:55:39'!
+
+!Portfolio class methodsFor: 'instance creation' stamp: 'LA 6/15/2022 20:55:39'!
 named: aName
 
 	^self new initializeWith: aName.! !
 
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'LA 6/15/2022 21:00:34'!
+!Portfolio class methodsFor: 'instance creation' stamp: 'LA 6/15/2022 21:00:34'!
 named: aName with: anAccount
 
 	| newPortfolio |
@@ -1080,7 +1072,7 @@ named: aName with: anAccount
 		add: anAccount;
 		yourself! !
 
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'LA 6/15/2022 21:00:40'!
+!Portfolio class methodsFor: 'instance creation' stamp: 'LA 6/15/2022 21:00:40'!
 named: aName with: anAccount with: anotherAccount
 
 	| newPortfolio |
@@ -1091,12 +1083,12 @@ named: aName with: anAccount with: anotherAccount
 		add: anotherAccount;
 		yourself! !
 
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'LA 6/15/2022 20:58:53'!
+!Portfolio class methodsFor: 'instance creation' stamp: 'LA 6/15/2022 20:58:53'!
 with: anAccount
 
 	^self named: 'Unnamed' with: anAccount.! !
 
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'LA 6/15/2022 20:59:56'!
+!Portfolio class methodsFor: 'instance creation' stamp: 'LA 6/15/2022 20:59:56'!
 with: anAccount with: anotherAccount
 
 	^self named: 'Unnamed' with: anAccount with: anotherAccount .! !
@@ -1169,7 +1161,7 @@ isComposedBy: anAccount
 ReceptiveAccount class
 	instanceVariableNames: ''!
 
-!ReceptiveAccount class methodsFor: 'as yet unclassified' stamp: 'LA 6/15/2022 20:47:27'!
+!ReceptiveAccount class methodsFor: 'instance creation' stamp: 'LA 6/15/2022 20:47:27'!
 named: aName
 
 	^self new initializeWith: aName.! !
@@ -1242,8 +1234,7 @@ for: aValue
 
 	^ self new initializeFor: aValue ! !
 
-
-!Deposit class methodsFor: 'as yet unclassified' stamp: 'LL 7/8/2021 21:45:00'!
+!Deposit class methodsFor: 'instance creation' stamp: 'LL 7/8/2021 21:45:00'!
 register: aValue on: account
 
 	| transaction |
@@ -1278,7 +1269,7 @@ initializeWith: aTransfer
 TransferLeg class
 	instanceVariableNames: ''!
 
-!TransferLeg class methodsFor: 'as yet unclassified' stamp: 'LL 9/20/2020 22:45:01'!
+!TransferLeg class methodsFor: 'instance creation' stamp: 'LL 9/20/2020 22:45:01'!
 of: aTransfer on: anAccount
 
 	| transaction |
@@ -1380,8 +1371,7 @@ for: aValue
 
 	^ self new initializeFor: aValue ! !
 
-
-!Withdraw class methodsFor: 'as yet unclassified' stamp: 'LL 7/8/2021 21:45:05'!
+!Withdraw class methodsFor: 'instance creation' stamp: 'LL 7/8/2021 21:45:05'!
 register: aValue on: account
 
 	| transaction |
@@ -1417,7 +1407,7 @@ generate
 Report class
 	instanceVariableNames: ''!
 
-!Report class methodsFor: 'as yet unclassified' stamp: 'LA 6/15/2022 21:05:01'!
+!Report class methodsFor: 'instance creation' stamp: 'LA 6/15/2022 21:05:01'!
 for: anAccount 
 	
 	^self new initializeFor: anAccount ! !
