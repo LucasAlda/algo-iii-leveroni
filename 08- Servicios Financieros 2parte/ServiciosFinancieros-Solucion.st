@@ -149,6 +149,107 @@ Balance = 150 * pesos'
 ! !
 
 
+!classDefinition: #PortfolioDetailedTreePrinterTest category: 'ServiciosFinancieros-Solucion'!
+TestCase subclass: #PortfolioDetailedTreePrinterTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Solucion'!
+
+!PortfolioDetailedTreePrinterTest methodsFor: 'as yet unclassified' stamp: 'BB 6/16/2022 00:01:07'!
+test01PDTPForAnEmptyPortfolioPrintsThePortfoliosNameAndBalanceEqualToZero
+
+	|  report |
+	
+	report := PortfolioDetailedTreePrinter for: (Portfolio named: 'Mi Portfolio').
+	
+	self assert: report generate equals:
+'Mi Portfolio
+	Balance = 0 * pesos'! !
+
+!PortfolioDetailedTreePrinterTest methodsFor: 'as yet unclassified' stamp: 'BB 6/16/2022 00:00:52'!
+test02PDTPForAPortfolioWithAReceptiveAccountWithNoTransactionsPrintsTheTreeWithThreeLevelsAndBalanceEqualToZero
+
+	|  report receptiveAccount |
+	
+	receptiveAccount := ReceptiveAccount named: 'Cuenta Personal'.
+	
+	report := PortfolioDetailedTreePrinter for: (Portfolio named: 'Mi Portfolio' with: receptiveAccount).
+	
+	self assert: report generate equals:
+'Mi Portfolio
+	Cuenta Personal
+		Balance = 0 * pesos
+	Balance = 0 * pesos'! !
+
+!PortfolioDetailedTreePrinterTest methodsFor: 'as yet unclassified' stamp: 'BB 6/16/2022 00:28:47'!
+test03PDTPForAPortfolioWithAReceptiveAccountWithTransactionsPrintsTheTreeWithThreeLevels
+
+	|  report receptiveAccount |
+	
+	receptiveAccount := ReceptiveAccount named: 'Cuenta Personal'.
+	Deposit register: 100 * peso on: receptiveAccount. 
+	
+	report := PortfolioDetailedTreePrinter for: (Portfolio named: 'Mi Portfolio' with: receptiveAccount).
+	
+	self assert: report generate equals:
+'Mi Portfolio
+	Cuenta Personal
+		Depósito por 100 * pesos
+		Balance = 100 * pesos
+	Balance = 100 * pesos'! !
+
+!PortfolioDetailedTreePrinterTest methodsFor: 'as yet unclassified' stamp: 'BB 6/16/2022 00:32:06'!
+test04PDTPForAPortfolioWithAPortfolioPrintsTheTreeWithThreeLevels
+
+	|  report childPortfolio |
+	
+	childPortfolio := Portfolio named: 'Portfolio Secundario'.
+	report := PortfolioDetailedTreePrinter for: (Portfolio named: 'Mi Portfolio' with: childPortfolio).
+	
+	self assert: report generate equals:
+'Mi Portfolio
+	Portfolio Secundario
+		Balance = 0 * pesos
+	Balance = 0 * pesos'! !
+
+!PortfolioDetailedTreePrinterTest methodsFor: 'as yet unclassified' stamp: 'BB 6/16/2022 00:46:57'!
+test05PDTPForAPortfolioWithAPortfolioPrintsTheTreeWithThreeLevels
+
+	| angelesAccount childrenPortfolio familyPortfolio juanAccount personalAccount report |
+	personalAccount := ReceptiveAccount named: 'Cuenta Personal'.
+	juanAccount := ReceptiveAccount named: 'Cuenta de Juan'.
+	angelesAccount := ReceptiveAccount named: 'Cuenta de Angeles'.
+
+	childrenPortfolio := Portfolio named: 'Portfolio de hijos' with: juanAccount with: angelesAccount.
+	familyPortfolio := Portfolio named: 'Portfolio de la familia' with: personalAccount with: childrenPortfolio.
+
+	Deposit register: 150 * peso on: personalAccount.
+	Deposit register: 100 * peso on: juanAccount.
+	Withdraw register: 50 * peso on: juanAccount.
+
+	Transfer amount: 25 * peso from: personalAccount to: angelesAccount.
+	
+	report := PortfolioDetailedTreePrinter for: familyPortfolio.
+
+	self assert: report generate equals: 
+'Portfolio de la familia
+	Cuenta Personal
+		Depósito por 150 * pesos
+		Salida por transferencia de 25 * pesos
+		Balance = 125 * pesos
+	Portfolio de hijos
+		Cuenta de Juan
+			Depósito por 100 * pesos
+			Extracción por 50 * pesos
+			Balance = 50 * pesos
+		Cuenta de Angeles
+			Entrada por transferencia de 25 * pesos
+			Balance = 25 * pesos
+		Balance = 75 * pesos
+	Balance = 200 * pesos'.! !
+
+
 !classDefinition: #PortfolioTest category: 'ServiciosFinancieros-Solucion'!
 TestCase subclass: #PortfolioTest
 	instanceVariableNames: ''
@@ -369,14 +470,76 @@ TestCase subclass: #PortfolioTreePrinterTest
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!PortfolioTreePrinterTest methodsFor: 'as yet unclassified' stamp: 'LA 6/15/2022 21:03:39'!
-test01
+!PortfolioTreePrinterTest methodsFor: 'tests' stamp: 'BB 6/16/2022 00:01:31'!
+test01PTPForAnEmptyPortfolioPrintsThePortfoliosNameAndBalanceEqualToZero
 
 	|  report |
 	
 	report := PortfolioTreePrinter for: (Portfolio named: 'Mi Portfolio').
 	
 	self assert: report generate equals: 'Mi Portfolio'! !
+
+!PortfolioTreePrinterTest methodsFor: 'tests' stamp: 'BB 6/16/2022 00:01:39'!
+test02PTPForAPortfolioWithAReceptiveAccountWithNoTransactionsPrintsTheTreeWithThreeLevelsAndBalanceEqualToZero
+
+	|  report receptiveAccount |
+	
+	receptiveAccount := ReceptiveAccount named: 'Cuenta Personal'.
+	
+	report := PortfolioTreePrinter for: (Portfolio named: 'Mi Portfolio' with: receptiveAccount).
+	
+	self assert: report generate equals:
+'Mi Portfolio
+	Cuenta Personal'! !
+
+!PortfolioTreePrinterTest methodsFor: 'tests' stamp: 'BB 6/15/2022 23:32:08'!
+test03PTPForAPortfolioWithReceptiveAccountsPrintsTheTreeWithTwoLevels
+
+	|  report receptiveAccount anotherReceptiveAccount |
+	
+	receptiveAccount := ReceptiveAccount named: 'Cuenta Personal'.
+	anotherReceptiveAccount := ReceptiveAccount named: 'Cuenta Offshore'.
+	
+	report := PortfolioTreePrinter for: (Portfolio named: 'Mi Portfolio' with: receptiveAccount with: anotherReceptiveAccount).
+	
+	self assert: report generate equals:
+'Mi Portfolio
+	Cuenta Personal
+	Cuenta Offshore'! !
+
+!PortfolioTreePrinterTest methodsFor: 'tests' stamp: 'BB 6/15/2022 23:31:00'!
+test04PTPForAPortfolioWithAChildPortfolioPrintsTheTreeWithThreeLevels
+
+	|  report receptiveAccount childPortfolio |
+	
+	receptiveAccount := ReceptiveAccount named: 'Cuenta Personal'.
+	childPortfolio := Portfolio named: 'Mi Sub Portfolio' with: receptiveAccount .
+	
+	report := PortfolioTreePrinter for: (Portfolio named: 'Mi Portfolio' with: childPortfolio).
+	
+	self assert: report generate equals:
+'Mi Portfolio
+	Mi Sub Portfolio
+		Cuenta Personal'! !
+
+!PortfolioTreePrinterTest methodsFor: 'tests' stamp: 'BB 6/15/2022 23:37:07'!
+test05PTPForAPortfolioWithAChildPortfolioPrintsTheTreeWithThreeLevels
+	
+	| angiesAccount childrenPortfolio johnsAccount myAccount report |
+	
+	johnsAccount := ReceptiveAccount named: 'Cuenta de Juan'. 
+	angiesAccount := ReceptiveAccount named: 'Cuenta de Angeles'. 
+	childrenPortfolio := Portfolio named: 'Portfolio de hijos' with: johnsAccount with: angiesAccount. 
+	myAccount := ReceptiveAccount named: 'Cuenta mia'. 
+	
+	report := PortfolioTreePrinter for: (Portfolio named: 'Portfolio de la familia' with: myAccount with: childrenPortfolio).
+	
+	self assert: report generate equals:
+'Portfolio de la familia
+	Cuenta mia
+	Portfolio de hijos
+		Cuenta de Juan
+		Cuenta de Angeles'! !
 
 
 !classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Solucion'!
@@ -765,6 +928,11 @@ isComposedBy: anAccount
 	self subclassResponsibility! !
 
 
+!Account methodsFor: 'private' stamp: 'BB 6/15/2022 21:34:42'!
+accept: anExpressionVisitor
+
+	self subclassResponsibility.! !
+
 !Account methodsFor: 'private' stamp: 'HAW 5/25/2019 12:23:27'!
 addTransactionsTo: aCollectionOfTransactions
 
@@ -831,6 +999,11 @@ add: accountToAdd
 	accountToAdd addedTo: self 
 	! !
 
+
+!Portfolio methodsFor: 'private' stamp: 'BB 6/16/2022 00:52:51'!
+accept: anExpressionVisitor
+
+	^anExpressionVisitor visitPortfolio: self named: name with: accounts.! !
 
 !Portfolio methodsFor: 'private' stamp: 'HAW 5/25/2019 11:42:55'!
 addTransactionsTo: aCollectionOfTransactions
@@ -969,6 +1142,11 @@ transactions
 	^ transactions copy! !
 
 
+!ReceptiveAccount methodsFor: 'private' stamp: 'BB 6/16/2022 00:17:10'!
+accept: anExpressionVisitor
+
+	^anExpressionVisitor visitReceptiveAccount: self named: name.! !
+
 !ReceptiveAccount methodsFor: 'private' stamp: 'HAW 5/25/2019 11:38:52'!
 addTransactionsTo: aCollectionOfTransactions
 
@@ -1010,15 +1188,16 @@ value
 	self subclassResponsibility ! !
 
 
-!AccountTransaction methodsFor: 'balance' stamp: 'LA 6/15/2022 20:21:57'!
-accept: aReport
-
-	self subclassResponsibility.! !
-
 !AccountTransaction methodsFor: 'balance' stamp: 'HAW 5/25/2019 11:25:39'!
 affectBalance: aBalance
 
 	self subclassResponsibility ! !
+
+
+!AccountTransaction methodsFor: 'private' stamp: 'BB 6/15/2022 21:34:25'!
+accept: anExpressionVisitor
+
+	self subclassResponsibility.! !
 
 
 !classDefinition: #Deposit category: 'ServiciosFinancieros-Solucion'!
@@ -1040,11 +1219,12 @@ value
 	^ value! !
 
 
-!Deposit methodsFor: 'balance' stamp: 'LA 6/15/2022 20:23:03'!
+!Deposit methodsFor: 'private' stamp: 'LA 6/15/2022 20:23:03'!
 accept: anExpressionVisitor
 
 	^anExpressionVisitor visitDeposit: self.
 	! !
+
 
 !Deposit methodsFor: 'balance' stamp: 'HAW 5/25/2019 11:25:02'!
 affectBalance: aBalance
@@ -1116,11 +1296,6 @@ TransferLeg subclass: #TransferDepositLeg
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!TransferDepositLeg methodsFor: 'accessing' stamp: 'LA 6/15/2022 20:24:42'!
-accept: anExpressionVisitor
-
-	^anExpressionVisitor visitTransferDepositLeg: self.! !
-
 !TransferDepositLeg methodsFor: 'accessing' stamp: 'LL 9/20/2020 22:26:10'!
 withdrawLeg
 
@@ -1132,6 +1307,12 @@ affectBalance: aBalance
 
 	^aBalance + self value! !
 
+
+!TransferDepositLeg methodsFor: 'private' stamp: 'LA 6/15/2022 20:24:42'!
+accept: anExpressionVisitor
+
+	^anExpressionVisitor visitTransferDepositLeg: self.! !
+
 
 !classDefinition: #TransferWithdrawLeg category: 'ServiciosFinancieros-Solucion'!
 TransferLeg subclass: #TransferWithdrawLeg
@@ -1139,11 +1320,6 @@ TransferLeg subclass: #TransferWithdrawLeg
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
-
-!TransferWithdrawLeg methodsFor: 'accessing' stamp: 'LA 6/15/2022 20:25:10'!
-accept: anExpressionVisitor
-
-	^anExpressionVisitor visitTransferWithdrawLeg: self.! !
 
 !TransferWithdrawLeg methodsFor: 'accessing' stamp: 'LL 9/20/2020 22:25:47'!
 depositLeg
@@ -1155,6 +1331,12 @@ depositLeg
 affectBalance: aBalance
 
 	^aBalance - self value! !
+
+
+!TransferWithdrawLeg methodsFor: 'private' stamp: 'LA 6/15/2022 20:25:10'!
+accept: anExpressionVisitor
+
+	^anExpressionVisitor visitTransferWithdrawLeg: self.! !
 
 
 !classDefinition: #Withdraw category: 'ServiciosFinancieros-Solucion'!
@@ -1170,11 +1352,6 @@ initializeFor: aValue
 	value := aValue ! !
 
 
-!Withdraw methodsFor: 'value' stamp: 'LA 6/15/2022 20:25:40'!
-accept: anExpressionVisitor
-
-	^anExpressionVisitor visitWithdraw: self.! !
-
 !Withdraw methodsFor: 'value' stamp: 'HernanWilkinson 7/13/2011 18:33'!
 value
 
@@ -1185,6 +1362,12 @@ value
 affectBalance: aBalance
 
 	^aBalance - value! !
+
+
+!Withdraw methodsFor: 'private' stamp: 'LA 6/15/2022 20:25:40'!
+accept: anExpressionVisitor
+
+	^anExpressionVisitor visitWithdraw: self.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1228,26 +1411,6 @@ generate
 	self subclassResponsibility.! !
 
 
-!Report methodsFor: 'private' stamp: 'LA 6/15/2022 20:30:13'!
-visitDeposit: aDeposit 
-
-	self subclassResponsibility ! !
-
-!Report methodsFor: 'private' stamp: 'LA 6/15/2022 20:30:24'!
-visitTransferDepositLeg: aTransferDepositLeg 
-
-	self subclassResponsibility ! !
-
-!Report methodsFor: 'private' stamp: 'LA 6/15/2022 20:30:35'!
-visitTransferWithdrawLeg: aTransferWithdrawLeg 
-
-	self subclassResponsibility ! !
-
-!Report methodsFor: 'private' stamp: 'LA 6/15/2022 20:30:45'!
-visitWithdraw: aWithdraw 
-
-	self subclassResponsibility ! !
-
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Report class' category: 'ServiciosFinancieros-Solucion'!
@@ -1262,26 +1425,26 @@ for: anAccount
 
 !classDefinition: #AccountSummary category: 'ServiciosFinancieros-Solucion'!
 Report subclass: #AccountSummary
-	instanceVariableNames: 'account'
+	instanceVariableNames: 'transactions accountBalance'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!AccountSummary methodsFor: 'initialization' stamp: 'LA 6/15/2022 21:07:10'!
+!AccountSummary methodsFor: 'initialization' stamp: 'BB 6/15/2022 21:50:57'!
 initializeFor: anAccount
 
-	account := anAccount.! !
+	transactions := anAccount transactions.
+	accountBalance := anAccount balance.! !
 
 
-!AccountSummary methodsFor: 'main protocol' stamp: 'LA 6/15/2022 20:21:57'!
+!AccountSummary methodsFor: 'main protocol' stamp: 'BB 6/15/2022 21:51:44'!
 generate
 
-	| transactions summaryLines |
-	transactions := account transactions.
+	| summaryLines |
 	
 	summaryLines := transactions collect: [:transaction | transaction accept: self ].
 	
-	summaryLines addLast: ('Balance = ', account balance printString).
+	summaryLines addLast: ('Balance = ', accountBalance asString).
 	
 	^self joinSummaryLines: summaryLines.
 	
@@ -1293,62 +1456,44 @@ joinSummaryLines: reportLines
 
 	^ String newLineString join: reportLines! !
 
-!AccountSummary methodsFor: 'private' stamp: 'LA 6/15/2022 20:23:03'!
+!AccountSummary methodsFor: 'private' stamp: 'BB 6/15/2022 21:52:55'!
 visitDeposit: aDeposit 
 	
-	^'Depósito por ', aDeposit value printString.! !
+	^'Depósito por ', aDeposit value asString.! !
 
-!AccountSummary methodsFor: 'private' stamp: 'LA 6/15/2022 20:24:42'!
+!AccountSummary methodsFor: 'private' stamp: 'BB 6/15/2022 21:53:00'!
 visitTransferDepositLeg: aTransferDepositLeg 
 	
-	^'Entrada por transferencia de ', aTransferDepositLeg value printString.! !
+	^'Entrada por transferencia de ', aTransferDepositLeg value asString.! !
 
-!AccountSummary methodsFor: 'private' stamp: 'LA 6/15/2022 20:25:10'!
+!AccountSummary methodsFor: 'private' stamp: 'BB 6/15/2022 21:53:05'!
 visitTransferWithdrawLeg: aTransferWithdrawLeg 
 	
-	^'Salida por transferencia de ', aTransferWithdrawLeg value printString.! !
+	^'Salida por transferencia de ', aTransferWithdrawLeg value asString.! !
 
-!AccountSummary methodsFor: 'private' stamp: 'LA 6/15/2022 20:25:40'!
+!AccountSummary methodsFor: 'private' stamp: 'BB 6/15/2022 21:53:10'!
 visitWithdraw: aWithdraw 
 	
-	^'Extracción por ', aWithdraw value printString.! !
-
-
-!classDefinition: #PortfolioTreePrinter category: 'ServiciosFinancieros-Solucion'!
-Report subclass: #PortfolioTreePrinter
-	instanceVariableNames: 'portfolio'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'ServiciosFinancieros-Solucion'!
-
-!PortfolioTreePrinter methodsFor: 'initialization' stamp: 'LA 6/15/2022 21:09:09'!
-generate
-
-	^'Mi Portfolio'! !
-
-!PortfolioTreePrinter methodsFor: 'initialization' stamp: 'LA 6/15/2022 21:07:36'!
-initializeFor: aPortfolio
-
-	portfolio := aPortfolio.! !
+	^'Extracción por ', aWithdraw value asString.! !
 
 
 !classDefinition: #TransferNet category: 'ServiciosFinancieros-Solucion'!
 Report subclass: #TransferNet
-	instanceVariableNames: 'account'
+	instanceVariableNames: 'transactions'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!TransferNet methodsFor: 'initialization' stamp: 'LA 6/15/2022 21:07:17'!
+!TransferNet methodsFor: 'initialization' stamp: 'BB 6/15/2022 21:53:53'!
 initializeFor: anAccount
 
-	account := anAccount.! !
+	transactions := anAccount transactions.! !
 
 
-!TransferNet methodsFor: 'main protocol' stamp: 'LA 6/15/2022 20:29:22'!
+!TransferNet methodsFor: 'main protocol' stamp: 'BB 6/15/2022 21:54:09'!
 generate
 	
-	^account transactions sum: [:transaction | transaction accept: self] ifEmpty: 0 * peso.
+	^transactions sum: [:transaction | transaction accept: self] ifEmpty: 0 * peso.
 	
 	! !
 
@@ -1372,6 +1517,149 @@ visitTransferWithdrawLeg: aTransferWithdrawLeg
 visitWithdraw: aWithdraw 
 	
 	^0.! !
+
+
+!classDefinition: #TreePrinter category: 'ServiciosFinancieros-Solucion'!
+Report subclass: #TreePrinter
+	instanceVariableNames: 'portfolio'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Solucion'!
+
+!TreePrinter methodsFor: 'initialization' stamp: 'BB 6/15/2022 23:41:29'!
+initializeFor: aPortfolio
+
+	portfolio := aPortfolio.! !
+
+
+!TreePrinter methodsFor: 'main protocol' stamp: 'BB 6/15/2022 23:41:29'!
+generate
+
+	^portfolio accept: self
+	
+	! !
+
+!TreePrinter methodsFor: 'main protocol' stamp: 'BB 6/16/2022 00:51:43'!
+visitPortfolio: aPortfolio named: aPortfolioName with: itsChildsAccounts
+
+	self subclassResponsibility 
+	
+	
+	
+	
+	
+	
+	
+	! !
+
+!TreePrinter methodsFor: 'main protocol' stamp: 'BB 6/16/2022 00:15:41'!
+visitReceptiveAccount: aReceptiveAccount named: aReceptiveAccountName
+
+	self subclassResponsibility.
+	
+	
+	
+	
+	
+	
+	
+	! !
+
+
+!TreePrinter methodsFor: 'private' stamp: 'BB 6/15/2022 23:41:29'!
+joinStringsWithEnters: reportLines
+
+	^ String newLineString join: reportLines! !
+
+!TreePrinter methodsFor: 'private' stamp: 'BB 6/15/2022 23:41:29'!
+tabLines: aText
+	
+	| tabbedLines |
+	tabbedLines := OrderedCollection new.
+	
+	aText linesDo: [:line | tabbedLines addLast: String tab , line].
+	
+	^self joinStringsWithEnters: tabbedLines
+	
+	! !
+
+
+!classDefinition: #PortfolioDetailedTreePrinter category: 'ServiciosFinancieros-Solucion'!
+TreePrinter subclass: #PortfolioDetailedTreePrinter
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Solucion'!
+
+!PortfolioDetailedTreePrinter methodsFor: 'main protocol' stamp: 'BB 6/16/2022 00:51:04'!
+visitPortfolio: aPortfolio named: aPortfolioName with: itsChildsAccounts
+
+	| childNames body bodyLines |
+	
+	childNames := itsChildsAccounts collect: [:childAccount | childAccount accept: self ].
+	childNames ifEmpty: [^(aPortfolioName , '
+	Balance = 0 * pesos') ].
+	
+	bodyLines := childNames copy.
+	bodyLines addLast: 'Balance = ', aPortfolio balance asString.
+	
+	body := self joinStringsWithEnters: bodyLines.
+	body := self tabLines: body.
+	
+	^self joinStringsWithEnters: (OrderedCollection with: aPortfolioName with: body).
+	
+	
+	
+	
+	
+	
+	
+	! !
+
+!PortfolioDetailedTreePrinter methodsFor: 'main protocol' stamp: 'BB 6/16/2022 00:12:21'!
+visitReceptiveAccount: aReceptiveAccount named: aReceptiveAccountName
+
+	| accountSummary |
+	
+	accountSummary := (AccountSummary for: aReceptiveAccount) generate.
+	accountSummary := self tabLines: accountSummary. 
+	
+	^self joinStringsWithEnters: (OrderedCollection with: aReceptiveAccountName with: accountSummary) 
+		.! !
+
+
+!classDefinition: #PortfolioTreePrinter category: 'ServiciosFinancieros-Solucion'!
+TreePrinter subclass: #PortfolioTreePrinter
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Solucion'!
+
+!PortfolioTreePrinter methodsFor: 'main protocol' stamp: 'BB 6/16/2022 00:51:24'!
+visitPortfolio: aPortfolio named: aPortfolioName with: itsChildsAccounts
+
+	| childNames body |
+	
+	childNames := itsChildsAccounts collect: [:childAccount | childAccount accept: self ].
+	childNames ifEmpty: [^aPortfolioName ].
+	
+	body := self joinStringsWithEnters: childNames.
+	body := self tabLines: body.
+	
+	^self joinStringsWithEnters: (OrderedCollection with: aPortfolioName with: body).
+	
+	
+	
+	
+	
+	
+	
+	! !
+
+!PortfolioTreePrinter methodsFor: 'main protocol' stamp: 'BB 6/16/2022 00:16:20'!
+visitReceptiveAccount: aReceptiveAccount named: aReceptiveAccountName
+
+	^aReceptiveAccountName.! !
 
 
 !classDefinition: #Transfer category: 'ServiciosFinancieros-Solucion'!
