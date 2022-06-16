@@ -626,146 +626,139 @@ test07AccountKnowsItsTransactions
 
 !classDefinition: #TransferNetTest category: 'ServiciosFinancieros-Solucion'!
 TestCase subclass: #TransferNetTest
-	instanceVariableNames: ''
+	instanceVariableNames: 'receptiveAccount portfolio'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!TransferNetTest methodsFor: 'as yet unclassified' stamp: 'LA 6/11/2022 22:09:53'!
+!TransferNetTest methodsFor: 'setup' stamp: 'BB 6/16/2022 16:13:34'!
+setUp
+
+	receptiveAccount := ReceptiveAccount new.
+	portfolio := Portfolio new.! !
+
+
+!TransferNetTest methodsFor: 'tests' stamp: 'BB 6/16/2022 16:13:30'!
 test01ATransferNetForAReceptiveAccountWithoutTransactionsReturnsZero
 
-	| account report |
-	account := ReceptiveAccount new.
+	| report |
 	
-	report := TransferNet for: account.
+	report := TransferNet for: receptiveAccount.
 	
 	self assert: report generate equals: 0 * peso! !
 
-!TransferNetTest methodsFor: 'as yet unclassified' stamp: 'LA 6/11/2022 21:44:00'!
+!TransferNetTest methodsFor: 'tests' stamp: 'BB 6/16/2022 16:13:30'!
 test02ATransferNetForAReceptiveAccountWithOnlyTransferencesReturnsBalance
 
-	| account anotherAccount report |
-	account := ReceptiveAccount new.
+	| anotherAccount report |
+	
 	anotherAccount := ReceptiveAccount new.
 	
-	Transfer amount: 100 * peso from: anotherAccount to: account.
+	Transfer amount: 100 * peso from: anotherAccount to: receptiveAccount .
 	
-	report := TransferNet for: account.
+	report := TransferNet for: receptiveAccount .
 	
 	self assert: report generate equals: 100 * peso! !
 
-!TransferNetTest methodsFor: 'as yet unclassified' stamp: 'LA 6/11/2022 21:44:29'!
+!TransferNetTest methodsFor: 'tests' stamp: 'BB 6/16/2022 16:13:30'!
 test03ATransferNetForAReceptiveAccountWithNoTransferencesReturnsZero
 
-	| account report |
-	account := ReceptiveAccount new.
+	| report |
 	
-	Deposit register: 100 * peso on: account.
+	Deposit register: 100 * peso on: receptiveAccount .
 	
-	report := TransferNet for: account.
+	report := TransferNet for: receptiveAccount .
 	
 	self assert: report generate equals: 0 * peso! !
 
-!TransferNetTest methodsFor: 'as yet unclassified' stamp: 'LA 6/11/2022 22:06:53'!
+!TransferNetTest methodsFor: 'tests' stamp: 'BB 6/16/2022 16:13:30'!
 test04ATransferNetForAReceptiveAccountWithAllKindOfTransactionsOnlySumsTransfers
 
-	| account anotherAccount report |
+	| anotherAccount report |
 
-	account := ReceptiveAccount new.
 	anotherAccount := ReceptiveAccount new.
 	
-	Deposit register: 100 * peso on: account.
-	Transfer amount: 50 * peso from: account to: anotherAccount.
-	Withdraw register: 25 * peso on: account.
-	Transfer amount: 75 * peso from: anotherAccount to: account.
+	Deposit register: 100 * peso on: receptiveAccount .
+	Transfer amount: 50 * peso from: receptiveAccount to: anotherAccount.
+	Withdraw register: 25 * peso on: receptiveAccount .
+	Transfer amount: 75 * peso from: anotherAccount to: receptiveAccount .
 	
-	report := TransferNet for: account.
+	report := TransferNet for: receptiveAccount .
 	
 	self assert: report generate equals: 25 * peso! !
 
-!TransferNetTest methodsFor: 'as yet unclassified' stamp: 'LA 6/11/2022 22:09:23'!
+!TransferNetTest methodsFor: 'tests' stamp: 'BB 6/16/2022 16:13:34'!
 test05ATransferNetForAPortfolioWithoutTransactionsReturnsZero
 
-	| account report portfolio |
-	account := ReceptiveAccount new.
+	| report |
 	
-	portfolio := Portfolio new.
-	portfolio add: account.
+	portfolio add: receptiveAccount .
 	
-	report := TransferNet for: account.
+	report := TransferNet for: receptiveAccount.
 	
 	self assert: report generate equals: 0 * peso! !
 
-!TransferNetTest methodsFor: 'as yet unclassified' stamp: 'LA 6/11/2022 22:13:49'!
+!TransferNetTest methodsFor: 'tests' stamp: 'BB 6/16/2022 16:13:34'!
 test06ATransferNetForAPortfolioWithOnlyTransferencesReturnsBalance
 
-	| portfolio account anotherAccount report aThirdAccount |
+	| anotherAccount report aThirdAccount |
 	
-	account := ReceptiveAccount new.
 	anotherAccount := ReceptiveAccount new.
 	aThirdAccount := ReceptiveAccount new.
 		
-	portfolio := Portfolio new.
-	portfolio add: account.
+	portfolio add: receptiveAccount .
 	portfolio add: anotherAccount.
 	
-	Transfer amount: 100 * peso from: anotherAccount to: account.
-	Transfer amount: 50 * peso from: aThirdAccount to: account.
+	Transfer amount: 100 * peso from: anotherAccount to: receptiveAccount .
+	Transfer amount: 50 * peso from: aThirdAccount to: receptiveAccount .
 	
-	report := TransferNet for: portfolio.
+	report := TransferNet for: portfolio .
 	
 	self assert: report generate equals: 50 * peso! !
 
-!TransferNetTest methodsFor: 'as yet unclassified' stamp: 'LA 6/11/2022 22:15:14'!
+!TransferNetTest methodsFor: 'tests' stamp: 'BB 6/16/2022 16:13:34'!
 test07ATransferNetForAPortfolioWithNoTransferencesReturnsZero
 
-	| account report portfolio |
+	| report |
 	
-	portfolio := Portfolio new.
-	account := ReceptiveAccount new.
+	portfolio add: receptiveAccount .
 	
-	portfolio add: account.
-	
-	Deposit register: 100 * peso on: account.
+	Deposit register: 100 * peso on: receptiveAccount .
 	
 	report := TransferNet for: portfolio.
 	
 	self assert: report generate equals: 0 * peso! !
 
-!TransferNetTest methodsFor: 'as yet unclassified' stamp: 'LA 6/11/2022 22:17:30'!
+!TransferNetTest methodsFor: 'tests' stamp: 'BB 6/16/2022 16:13:34'!
 test08ATransferNetForAPortfolioWithAllKindOfTransactionsOnlySumsTransfers
 
-	| portfolio account anotherAccount report aThirdAccount |
+	| anotherAccount report aThirdAccount |
 	
-	portfolio := Portfolio new.
-	
-	account := ReceptiveAccount new.
 	anotherAccount := ReceptiveAccount new.
 	aThirdAccount := ReceptiveAccount new.
 	
-	portfolio add: account.
+	portfolio add: receptiveAccount .
 	portfolio add: anotherAccount.
 	
-	Deposit register: 100 * peso on: account.
+	Deposit register: 100 * peso on: receptiveAccount.
 	Transfer amount: 50 * peso from: aThirdAccount to: anotherAccount.
-	Withdraw register: 25 * peso on: account.
-	Transfer amount: 75 * peso from: anotherAccount to: account.
+	Withdraw register: 25 * peso on: receptiveAccount.
+	Transfer amount: 75 * peso from: anotherAccount to: receptiveAccount.
 	
-	report := TransferNet for: portfolio.
+	report := TransferNet for: portfolio .
 	
 	self assert: report generate equals: 50 * peso! !
 
-!TransferNetTest methodsFor: 'as yet unclassified' stamp: 'LA 6/11/2022 22:08:24'!
+!TransferNetTest methodsFor: 'tests' stamp: 'BB 6/16/2022 16:13:30'!
 test09ATransferNetCanBeNegative
 
-	| account anotherAccount report |
+	| anotherAccount report |
 
-	account := ReceptiveAccount new.
 	anotherAccount := ReceptiveAccount new.
 	
-	Transfer amount: 50 * peso from: account to: anotherAccount.
+	Transfer amount: 50 * peso from: receptiveAccount to: anotherAccount.
 	
-	report := TransferNet for: account.
+	report := TransferNet for: receptiveAccount .
 	
 	self assert: report generate equals: -50 * peso! !
 
