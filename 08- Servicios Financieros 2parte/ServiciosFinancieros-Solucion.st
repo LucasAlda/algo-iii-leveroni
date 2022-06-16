@@ -1,6 +1,6 @@
 !classDefinition: #AccountSummaryTest category: 'ServiciosFinancieros-Solucion'!
 TestCase subclass: #AccountSummaryTest
-	instanceVariableNames: 'receptiveAccount portfolio'
+	instanceVariableNames: 'receptiveAccount portfolio report'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
@@ -12,42 +12,34 @@ setUp
 	portfolio := Portfolio new.! !
 
 
-!AccountSummaryTest methodsFor: 'tests' stamp: 'BB 6/16/2022 15:53:58'!
+!AccountSummaryTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:46:36'!
 test01AnAccountSummaryForAReceptiveAccountWithoutTransactionsOnlyShowsBalanceIsZero
-
-	| report |
 	
 	report := AccountSummary for: receptiveAccount.
 	
-	self assert: report generate equals: 'Balance = 0 * pesos'! !
+	self assertGeneratedReportEquals: 'Balance = 0 * pesos'! !
 
-!AccountSummaryTest methodsFor: 'tests' stamp: 'BB 6/16/2022 15:53:58'!
+!AccountSummaryTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:46:46'!
 test02AnAccountSummaryForAReceptiveAccountWithATransactionListsItAndCalculatesBalance
-
-	| report |
 	
 	Deposit register: 100 * peso on: receptiveAccount .
 	report := AccountSummary for: receptiveAccount .
 	
-	self assert: report generate equals:  
+	self assertGeneratedReportEquals:   
 'Depósito por 100 * pesos
 Balance = 100 * pesos'! !
 
-!AccountSummaryTest methodsFor: 'tests' stamp: 'BB 6/16/2022 15:57:56'!
+!AccountSummaryTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:46:51'!
 test03AnAccountSummaryForAPortfolioWithoutTransactionsOnlyShowsBalanceIsZero
-
-	| report |
 	
 	portfolio add: receptiveAccount .
 	
 	report := AccountSummary for: portfolio.
 	
-	self assert: report generate equals: 'Balance = 0 * pesos'! !
+	self assertGeneratedReportEquals:  'Balance = 0 * pesos'! !
 
-!AccountSummaryTest methodsFor: 'tests' stamp: 'BB 6/16/2022 15:57:56'!
+!AccountSummaryTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:46:56'!
 test04AnAccountSummaryForAPortfolioWithATransactionListsItAndCalculatesBalance
-
-	| report |
 	
 	portfolio add: receptiveAccount .
 	
@@ -55,26 +47,24 @@ test04AnAccountSummaryForAPortfolioWithATransactionListsItAndCalculatesBalance
 	
 	report := AccountSummary for: portfolio .
 	
-	self assert: report generate equals:  
+	self assertGeneratedReportEquals:  
 'Depósito por 100 * pesos
 Balance = 100 * pesos'! !
 
-!AccountSummaryTest methodsFor: 'tests' stamp: 'BB 6/16/2022 15:53:58'!
+!AccountSummaryTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:47:00'!
 test05AnAccountSummaryCanShowNegativeBalance
-
-	| report |
 
 	Withdraw register: 100 * peso on: receptiveAccount .
 	report := AccountSummary for: receptiveAccount .
 	
-	self assert: report generate equals:  
+	self assertGeneratedReportEquals: 
 'Extracción por 100 * pesos
 Balance = -100 * pesos'! !
 
-!AccountSummaryTest methodsFor: 'tests' stamp: 'BB 6/16/2022 15:53:58'!
+!AccountSummaryTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:47:05'!
 test06AnAccountSummaryForAReceptiveAccountWithManyTransactionListAllTransactionsAndBalance
 
-	| report anotherReceptiveAccount |
+	| anotherReceptiveAccount |
 
 	anotherReceptiveAccount := ReceptiveAccount new.	
 
@@ -85,7 +75,7 @@ test06AnAccountSummaryForAReceptiveAccountWithManyTransactionListAllTransactions
 		
 	report := AccountSummary for: receptiveAccount .
 	
-	self assert: report generate equals:  
+	self assertGeneratedReportEquals:  
 'Depósito por 100 * pesos
 Extracción por 50 * pesos
 Salida por transferencia de 20 * pesos
@@ -93,10 +83,10 @@ Entrada por transferencia de 30 * pesos
 Balance = 60 * pesos'
 ! !
 
-!AccountSummaryTest methodsFor: 'tests' stamp: 'BB 6/16/2022 15:57:56'!
+!AccountSummaryTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:47:09'!
 test07AnAccountSummaryForAPortfolioWithManyTransactionsFromManyAccountsListAllTransactionsAndBalance
 
-	| report anotherReceptiveAccount anotherPortfolio |
+	| anotherReceptiveAccount anotherPortfolio |
 	
 	anotherReceptiveAccount := ReceptiveAccount new.	
 
@@ -113,7 +103,7 @@ test07AnAccountSummaryForAPortfolioWithManyTransactionsFromManyAccountsListAllTr
 		
 	report := AccountSummary for: portfolio .
 	
-	self assert: report generate equals:  
+	self assertGeneratedReportEquals:   
 'Depósito por 100 * pesos
 Extracción por 50 * pesos
 Salida por transferencia de 20 * pesos
@@ -123,92 +113,95 @@ Salida por transferencia de 30 * pesos
 Balance = 50 * pesos'
 ! !
 
-!AccountSummaryTest methodsFor: 'tests' stamp: 'BB 6/16/2022 15:57:44'!
+!AccountSummaryTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:47:13'!
 test08AnAccountSummaryCanIdentifyDifferentTransactionsWithTheSameNature
-
-	| report |
 	
 	Deposit register: 100 * peso on: receptiveAccount .
 	Deposit register: 50 * peso on: receptiveAccount .
 		
 	report := AccountSummary for: receptiveAccount .
 	
-	self assert: report generate equals:  
+	self assertGeneratedReportEquals: 
 'Depósito por 100 * pesos
 Depósito por 50 * pesos
 Balance = 150 * pesos'
 ! !
 
+
+!AccountSummaryTest methodsFor: 'assertions' stamp: 'LA 6/16/2022 16:46:21'!
+assertGeneratedReportEquals: aText
+
+	^ self assert: report generate equals: aText
+! !
+
 
 !classDefinition: #PortfolioDetailedTreePrinterTest category: 'ServiciosFinancieros-Solucion'!
 TestCase subclass: #PortfolioDetailedTreePrinterTest
-	instanceVariableNames: ''
+	instanceVariableNames: 'report personalAccount'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!PortfolioDetailedTreePrinterTest methodsFor: 'as yet unclassified' stamp: 'BB 6/16/2022 00:01:07'!
-test01PDTPForAnEmptyPortfolioPrintsThePortfoliosNameAndBalanceEqualToZero
+!PortfolioDetailedTreePrinterTest methodsFor: 'setup' stamp: 'LA 6/16/2022 16:44:05'!
+setUp
 
-	|  report |
+	personalAccount := ReceptiveAccount named: 'Cuenta Personal'.
+! !
+
+
+!PortfolioDetailedTreePrinterTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:41:51'!
+test01PDTPForAnEmptyPortfolioPrintsThePortfoliosNameAndBalanceEqualToZero
 	
 	report := PortfolioDetailedTreePrinter for: (Portfolio named: 'Mi Portfolio').
 	
-	self assert: report generate equals:
+	self assertGeneratedReportEquals:	
 'Mi Portfolio
 	Balance = 0 * pesos'! !
 
-!PortfolioDetailedTreePrinterTest methodsFor: 'as yet unclassified' stamp: 'BB 6/16/2022 00:00:52'!
+!PortfolioDetailedTreePrinterTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:44:05'!
 test02PDTPForAPortfolioWithAReceptiveAccountWithNoTransactionsPrintsTheTreeWithThreeLevelsAndBalanceEqualToZero
-
-	|  report receptiveAccount |
+		
+	report := PortfolioDetailedTreePrinter for: (Portfolio named: 'Mi Portfolio' with: personalAccount).
 	
-	receptiveAccount := ReceptiveAccount named: 'Cuenta Personal'.
-	
-	report := PortfolioDetailedTreePrinter for: (Portfolio named: 'Mi Portfolio' with: receptiveAccount).
-	
-	self assert: report generate equals:
+	self assertGeneratedReportEquals:	
 'Mi Portfolio
 	Cuenta Personal
 		Balance = 0 * pesos
 	Balance = 0 * pesos'! !
 
-!PortfolioDetailedTreePrinterTest methodsFor: 'as yet unclassified' stamp: 'BB 6/16/2022 00:28:47'!
+!PortfolioDetailedTreePrinterTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:44:05'!
 test03PDTPForAPortfolioWithAReceptiveAccountWithTransactionsPrintsTheTreeWithThreeLevels
 
-	|  report receptiveAccount |
+	Deposit register: 100 * peso on: personalAccount. 
 	
-	receptiveAccount := ReceptiveAccount named: 'Cuenta Personal'.
-	Deposit register: 100 * peso on: receptiveAccount. 
+	report := PortfolioDetailedTreePrinter for: (Portfolio named: 'Mi Portfolio' with: personalAccount).
 	
-	report := PortfolioDetailedTreePrinter for: (Portfolio named: 'Mi Portfolio' with: receptiveAccount).
-	
-	self assert: report generate equals:
+	self assertGeneratedReportEquals:	
 'Mi Portfolio
 	Cuenta Personal
 		Depósito por 100 * pesos
 		Balance = 100 * pesos
 	Balance = 100 * pesos'! !
 
-!PortfolioDetailedTreePrinterTest methodsFor: 'as yet unclassified' stamp: 'BB 6/16/2022 00:32:06'!
+!PortfolioDetailedTreePrinterTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:42:13'!
 test04PDTPForAPortfolioWithAPortfolioPrintsTheTreeWithThreeLevels
 
-	|  report childPortfolio |
+	|  childPortfolio |
 	
 	childPortfolio := Portfolio named: 'Portfolio Secundario'.
 	report := PortfolioDetailedTreePrinter for: (Portfolio named: 'Mi Portfolio' with: childPortfolio).
 	
-	self assert: report generate equals:
+	self assertGeneratedReportEquals:	
 'Mi Portfolio
 	Portfolio Secundario
 		Balance = 0 * pesos
 	Balance = 0 * pesos'! !
 
-!PortfolioDetailedTreePrinterTest methodsFor: 'as yet unclassified' stamp: 'BB 6/16/2022 00:46:57'!
+!PortfolioDetailedTreePrinterTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:44:05'!
 test05PDTPForAPortfolioWithAPortfolioPrintsTheTreeWithThreeLevels
 
-	| angelesAccount childrenPortfolio familyPortfolio juanAccount personalAccount report |
-	personalAccount := ReceptiveAccount named: 'Cuenta Personal'.
+	| angelesAccount childrenPortfolio familyPortfolio juanAccount |
+	
 	juanAccount := ReceptiveAccount named: 'Cuenta de Juan'.
 	angelesAccount := ReceptiveAccount named: 'Cuenta de Angeles'.
 
@@ -223,7 +216,7 @@ test05PDTPForAPortfolioWithAPortfolioPrintsTheTreeWithThreeLevels
 	
 	report := PortfolioDetailedTreePrinter for: familyPortfolio.
 
-	self assert: report generate equals: 
+	self assertGeneratedReportEquals:	
 'Portfolio de la familia
 	Cuenta Personal
 		Depósito por 150 * pesos
@@ -239,6 +232,12 @@ test05PDTPForAPortfolioWithAPortfolioPrintsTheTreeWithThreeLevels
 			Balance = 25 * pesos
 		Balance = 75 * pesos
 	Balance = 200 * pesos'.! !
+
+
+!PortfolioDetailedTreePrinterTest methodsFor: 'assertions' stamp: 'LA 6/16/2022 16:41:37'!
+assertGeneratedReportEquals: aText
+
+	^ self assert: report generate equals: aText! !
 
 
 !classDefinition: #PortfolioTest category: 'ServiciosFinancieros-Solucion'!
@@ -456,81 +455,87 @@ test15PortfolioCanNotIncludeAnyOfTheComposedAccountOfPortfolioToAdd
 
 !classDefinition: #PortfolioTreePrinterTest category: 'ServiciosFinancieros-Solucion'!
 TestCase subclass: #PortfolioTreePrinterTest
-	instanceVariableNames: ''
+	instanceVariableNames: 'personalAccount report'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!PortfolioTreePrinterTest methodsFor: 'tests' stamp: 'BB 6/16/2022 00:01:31'!
+!PortfolioTreePrinterTest methodsFor: 'setup' stamp: 'LA 6/16/2022 16:35:54'!
+setUp
+	
+	personalAccount := ReceptiveAccount named: 'Cuenta Personal'! !
+
+
+!PortfolioTreePrinterTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:40:04'!
 test01PTPForAnEmptyPortfolioPrintsThePortfoliosNameAndBalanceEqualToZero
 
-	|  report |
 	
 	report := PortfolioTreePrinter for: (Portfolio named: 'Mi Portfolio').
 	
-	self assert: report generate equals: 'Mi Portfolio'! !
+		self assertGeneratedReportEquals: 'Mi Portfolio'! !
 
-!PortfolioTreePrinterTest methodsFor: 'tests' stamp: 'BB 6/16/2022 00:01:39'!
+!PortfolioTreePrinterTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:39:52'!
 test02PTPForAPortfolioWithAReceptiveAccountWithNoTransactionsPrintsTheTreeWithThreeLevelsAndBalanceEqualToZero
 
-	|  report receptiveAccount |
 	
-	receptiveAccount := ReceptiveAccount named: 'Cuenta Personal'.
+	report := PortfolioTreePrinter for: (Portfolio named: 'Mi Portfolio' with: personalAccount).
 	
-	report := PortfolioTreePrinter for: (Portfolio named: 'Mi Portfolio' with: receptiveAccount).
-	
-	self assert: report generate equals:
+	self assertGeneratedReportEquals:
 'Mi Portfolio
 	Cuenta Personal'! !
 
-!PortfolioTreePrinterTest methodsFor: 'tests' stamp: 'BB 6/15/2022 23:32:08'!
+!PortfolioTreePrinterTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:39:48'!
 test03PTPForAPortfolioWithReceptiveAccountsPrintsTheTreeWithTwoLevels
 
-	|  report receptiveAccount anotherReceptiveAccount |
+	|  anotherReceptiveAccount |
 	
-	receptiveAccount := ReceptiveAccount named: 'Cuenta Personal'.
 	anotherReceptiveAccount := ReceptiveAccount named: 'Cuenta Offshore'.
 	
-	report := PortfolioTreePrinter for: (Portfolio named: 'Mi Portfolio' with: receptiveAccount with: anotherReceptiveAccount).
+	report := PortfolioTreePrinter for: (Portfolio named: 'Mi Portfolio' with: personalAccount with: anotherReceptiveAccount).
 	
-	self assert: report generate equals:
+	self assertGeneratedReportEquals:
 'Mi Portfolio
 	Cuenta Personal
 	Cuenta Offshore'! !
 
-!PortfolioTreePrinterTest methodsFor: 'tests' stamp: 'BB 6/15/2022 23:31:00'!
+!PortfolioTreePrinterTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:39:40'!
 test04PTPForAPortfolioWithAChildPortfolioPrintsTheTreeWithThreeLevels
 
-	|  report receptiveAccount childPortfolio |
+	|  childPortfolio |
 	
-	receptiveAccount := ReceptiveAccount named: 'Cuenta Personal'.
-	childPortfolio := Portfolio named: 'Mi Sub Portfolio' with: receptiveAccount .
+	childPortfolio := Portfolio named: 'Mi Sub Portfolio' with: personalAccount .
 	
 	report := PortfolioTreePrinter for: (Portfolio named: 'Mi Portfolio' with: childPortfolio).
 	
-	self assert: report generate equals:
+	self assertGeneratedReportEquals:
 'Mi Portfolio
 	Mi Sub Portfolio
 		Cuenta Personal'! !
 
-!PortfolioTreePrinterTest methodsFor: 'tests' stamp: 'BB 6/15/2022 23:37:07'!
+!PortfolioTreePrinterTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:39:28'!
 test05PTPForAPortfolioWithAChildPortfolioPrintsTheTreeWithThreeLevels
 	
-	| angiesAccount childrenPortfolio johnsAccount myAccount report |
+	| angiesAccount childrenPortfolio johnsAccount |
 	
 	johnsAccount := ReceptiveAccount named: 'Cuenta de Juan'. 
 	angiesAccount := ReceptiveAccount named: 'Cuenta de Angeles'. 
 	childrenPortfolio := Portfolio named: 'Portfolio de hijos' with: johnsAccount with: angiesAccount. 
-	myAccount := ReceptiveAccount named: 'Cuenta mia'. 
 	
-	report := PortfolioTreePrinter for: (Portfolio named: 'Portfolio de la familia' with: myAccount with: childrenPortfolio).
+	report := PortfolioTreePrinter for: (Portfolio named: 'Portfolio de la familia' with: personalAccount with: childrenPortfolio).
 	
-	self assert: report generate equals:
+	self assertGeneratedReportEquals: 
 'Portfolio de la familia
-	Cuenta mia
+	Cuenta Personal
 	Portfolio de hijos
 		Cuenta de Juan
 		Cuenta de Angeles'! !
+
+
+!PortfolioTreePrinterTest methodsFor: 'assertions' stamp: 'LA 6/16/2022 16:39:20'!
+assertGeneratedReportEquals: aText
+
+	^ self assert: report generate equals: aText
+! !
 
 
 !classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Solucion'!
@@ -626,7 +631,7 @@ test07AccountKnowsItsTransactions
 
 !classDefinition: #TransferNetTest category: 'ServiciosFinancieros-Solucion'!
 TestCase subclass: #TransferNetTest
-	instanceVariableNames: 'receptiveAccount portfolio'
+	instanceVariableNames: 'receptiveAccount portfolio report'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
@@ -638,19 +643,17 @@ setUp
 	portfolio := Portfolio new.! !
 
 
-!TransferNetTest methodsFor: 'tests' stamp: 'BB 6/16/2022 16:13:30'!
+!TransferNetTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:51:37'!
 test01ATransferNetForAReceptiveAccountWithoutTransactionsReturnsZero
-
-	| report |
 	
 	report := TransferNet for: receptiveAccount.
 	
-	self assert: report generate equals: 0 * peso! !
+	self assertGeneratedReportEquals: 0 * peso! !
 
-!TransferNetTest methodsFor: 'tests' stamp: 'BB 6/16/2022 16:13:30'!
+!TransferNetTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:51:42'!
 test02ATransferNetForAReceptiveAccountWithOnlyTransferencesReturnsBalance
 
-	| anotherAccount report |
+	| anotherAccount |
 	
 	anotherAccount := ReceptiveAccount new.
 	
@@ -658,23 +661,21 @@ test02ATransferNetForAReceptiveAccountWithOnlyTransferencesReturnsBalance
 	
 	report := TransferNet for: receptiveAccount .
 	
-	self assert: report generate equals: 100 * peso! !
+	self assertGeneratedReportEquals: 100 * peso! !
 
-!TransferNetTest methodsFor: 'tests' stamp: 'BB 6/16/2022 16:13:30'!
+!TransferNetTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:51:56'!
 test03ATransferNetForAReceptiveAccountWithNoTransferencesReturnsZero
-
-	| report |
 	
 	Deposit register: 100 * peso on: receptiveAccount .
 	
 	report := TransferNet for: receptiveAccount .
 	
-	self assert: report generate equals: 0 * peso! !
+	self assertGeneratedReportEquals: 0 * peso! !
 
-!TransferNetTest methodsFor: 'tests' stamp: 'BB 6/16/2022 16:13:30'!
+!TransferNetTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:52:02'!
 test04ATransferNetForAReceptiveAccountWithAllKindOfTransactionsOnlySumsTransfers
 
-	| anotherAccount report |
+	| anotherAccount |
 
 	anotherAccount := ReceptiveAccount new.
 	
@@ -685,23 +686,21 @@ test04ATransferNetForAReceptiveAccountWithAllKindOfTransactionsOnlySumsTransfers
 	
 	report := TransferNet for: receptiveAccount .
 	
-	self assert: report generate equals: 25 * peso! !
+	self assertGeneratedReportEquals: 25 * peso! !
 
-!TransferNetTest methodsFor: 'tests' stamp: 'BB 6/16/2022 16:13:34'!
+!TransferNetTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:52:06'!
 test05ATransferNetForAPortfolioWithoutTransactionsReturnsZero
-
-	| report |
 	
 	portfolio add: receptiveAccount .
 	
 	report := TransferNet for: receptiveAccount.
 	
-	self assert: report generate equals: 0 * peso! !
+	self assertGeneratedReportEquals: 0 * peso! !
 
-!TransferNetTest methodsFor: 'tests' stamp: 'BB 6/16/2022 16:13:34'!
+!TransferNetTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:52:12'!
 test06ATransferNetForAPortfolioWithOnlyTransferencesReturnsBalance
 
-	| anotherAccount report aThirdAccount |
+	| anotherAccount aThirdAccount |
 	
 	anotherAccount := ReceptiveAccount new.
 	aThirdAccount := ReceptiveAccount new.
@@ -714,12 +713,10 @@ test06ATransferNetForAPortfolioWithOnlyTransferencesReturnsBalance
 	
 	report := TransferNet for: portfolio .
 	
-	self assert: report generate equals: 50 * peso! !
+	self assertGeneratedReportEquals: 50 * peso! !
 
-!TransferNetTest methodsFor: 'tests' stamp: 'BB 6/16/2022 16:13:34'!
+!TransferNetTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:52:17'!
 test07ATransferNetForAPortfolioWithNoTransferencesReturnsZero
-
-	| report |
 	
 	portfolio add: receptiveAccount .
 	
@@ -727,12 +724,12 @@ test07ATransferNetForAPortfolioWithNoTransferencesReturnsZero
 	
 	report := TransferNet for: portfolio.
 	
-	self assert: report generate equals: 0 * peso! !
+	self assertGeneratedReportEquals: 0 * peso! !
 
-!TransferNetTest methodsFor: 'tests' stamp: 'BB 6/16/2022 16:13:34'!
+!TransferNetTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:52:21'!
 test08ATransferNetForAPortfolioWithAllKindOfTransactionsOnlySumsTransfers
 
-	| anotherAccount report aThirdAccount |
+	| anotherAccount aThirdAccount |
 	
 	anotherAccount := ReceptiveAccount new.
 	aThirdAccount := ReceptiveAccount new.
@@ -747,12 +744,12 @@ test08ATransferNetForAPortfolioWithAllKindOfTransactionsOnlySumsTransfers
 	
 	report := TransferNet for: portfolio .
 	
-	self assert: report generate equals: 50 * peso! !
+	self assertGeneratedReportEquals: 50 * peso! !
 
-!TransferNetTest methodsFor: 'tests' stamp: 'BB 6/16/2022 16:13:30'!
+!TransferNetTest methodsFor: 'tests' stamp: 'LA 6/16/2022 16:52:26'!
 test09ATransferNetCanBeNegative
 
-	| anotherAccount report |
+	| anotherAccount |
 
 	anotherAccount := ReceptiveAccount new.
 	
@@ -760,7 +757,14 @@ test09ATransferNetCanBeNegative
 	
 	report := TransferNet for: receptiveAccount .
 	
-	self assert: report generate equals: -50 * peso! !
+	self assertGeneratedReportEquals: -50 * peso! !
+
+
+!TransferNetTest methodsFor: 'assertions' stamp: 'LA 6/16/2022 16:52:35'!
+assertGeneratedReportEquals: anAmount
+
+	^ self assert: report generate equals: anAmount
+! !
 
 
 !classDefinition: #TransferTest category: 'ServiciosFinancieros-Solucion'!
@@ -770,7 +774,7 @@ TestCase subclass: #TransferTest
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'LL 9/20/2020 21:07:03'!
+!TransferTest methodsFor: 'tests' stamp: 'LL 9/20/2020 21:07:03'!
 test01ATransferDecreasesBalanceFromOriginAccountAndIncreasesItForDestinationAccount
 
 	| destinationAccount originAccount |
@@ -786,7 +790,7 @@ test01ATransferDecreasesBalanceFromOriginAccountAndIncreasesItForDestinationAcco
 	self assert: 8 * peso equals: originAccount balance.
 	self assert: 12 * peso equals: destinationAccount balance.! !
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'LL 9/20/2020 21:12:28'!
+!TransferTest methodsFor: 'tests' stamp: 'LL 9/20/2020 21:12:28'!
 test02ATransferKnowsItsValue
 
 	| destinationAccount originAccount transfer |
@@ -801,7 +805,7 @@ test02ATransferKnowsItsValue
 	
 	self assert: 2 * peso equals: transfer value.! !
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'LL 9/20/2020 23:01:44'!
+!TransferTest methodsFor: 'tests' stamp: 'LL 9/20/2020 23:01:44'!
 test03DepositLegKnowsItsWithdrawCounterpart
 
 	| destinationAccount originAccount transfer |
@@ -816,7 +820,7 @@ test03DepositLegKnowsItsWithdrawCounterpart
 	
 	self assert: transfer withdrawLeg equals: transfer depositLeg withdrawLeg! !
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'LL 9/20/2020 23:01:51'!
+!TransferTest methodsFor: 'tests' stamp: 'LL 9/20/2020 23:01:51'!
 test04WithdrawLegKnowsItsDepositCounterpart
 
 	| destinationAccount originAccount transfer |
@@ -831,7 +835,7 @@ test04WithdrawLegKnowsItsDepositCounterpart
 	
 	self assert: transfer depositLeg equals: transfer withdrawLeg depositLeg! !
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'LL 9/20/2020 23:02:36'!
+!TransferTest methodsFor: 'tests' stamp: 'LL 9/20/2020 23:02:36'!
 test05OriginAndDestinationAccountsCannotBeTheSame
 
 	| originAccount |
@@ -847,7 +851,7 @@ test05OriginAndDestinationAccountsCannotBeTheSame
 		]
 ! !
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'LL 9/20/2020 23:02:44'!
+!TransferTest methodsFor: 'tests' stamp: 'LL 9/20/2020 23:02:44'!
 test06CannotTransferAZeroAmount
 
 	| originAccount destinationAccount |
@@ -1392,7 +1396,6 @@ initializeFor: anAccount
 generate
 	
 	self subclassResponsibility.! !
-
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
